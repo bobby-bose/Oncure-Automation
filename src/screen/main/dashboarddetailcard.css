@@ -1,0 +1,38 @@
+.module-container {
+    display: flex;
+    flex-direction: row; 
+  }
+  .card {
+    flex: 1;
+    padding: 20px;
+  text-align: center;
+  margin: 10px;
+  border: 3px solid #ccc;
+  border-radius: 10px;
+  }
+  
+  ul {
+    text-align: left;
+    padding-left: 0;
+  }
+  
+  li {
+    list-style-type: none;
+    text-align: left;
+  }
+  button {
+    width: 100%;
+    text-align: center;
+    background-color: blue;
+    color: white;
+    padding: 10px; 
+    border: none;
+  }
+  .button-container {
+    display: flex;
+    justify-content: center;
+  }
+  .time {
+    font-size: 25px;
+    color: #110b0b;
+  }

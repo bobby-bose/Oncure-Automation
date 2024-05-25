@@ -1,25 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+// import SecondTopMain from './second/top/main';
+// import SecondLeftMain from './second/left/secondleftmain';
+// import SecondRightMain from './second/right/main/secondrightmain';
+import SecondMiddleMain from './second/middle/secondmiddlemain/secondmiddlemain';
 
-function App() {
+
+const App = () => {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+     {/* < SecondLeftMain /> */}
+     {/* < SecondRightMain /> */}
+      {/* <SecondTopMain /> */}
+      {/* <MainDashboard/> */}
+      <SecondMiddleMain/>
     </div>
   );
-}
+};
 
 export default App;
