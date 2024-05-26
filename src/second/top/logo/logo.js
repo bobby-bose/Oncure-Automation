@@ -1,14 +1,12 @@
-// src/Logo.js
 import React from 'react';
 import './logo.css';
 
-const Logo = () => {
+const Avatar = ({ src, alt }) => {
   return (
-    <div className="logo">
-      <div className="avatar"></div>
-      
+ <div className="avatar-wrapper">
+      <img src={src} alt={alt} className="avatar" />
     </div>
   );
 };
 
-export default Logo;
+export default Avatar;

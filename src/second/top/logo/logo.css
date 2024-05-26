@@ -1,13 +1,8 @@
-/* src/Logo.css */
-.logo {
-    display: flex;
-    align-items: center;
-  }
-  
-  .avatar {
-    width: 50px; /* Set the width and height of the avatar */
-    height: 50px;
-    border-radius: 50%; /* Make it a circle */
-    background-color: #ccc; /* Set the background color */
-    margin-right: 10px; /* Add some spacing between the avatar and the text */
-  }
+
+
+.avatar {
+  display: block;
+  width: 100px; /* Adjust the size as needed */
+  height: 100px;
+
+}

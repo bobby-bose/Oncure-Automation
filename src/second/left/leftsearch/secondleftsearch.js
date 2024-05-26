@@ -4,8 +4,8 @@ import './secondleftsearch.css';
 const SecondLeftSearch = () => {
   return (
     <div className="search-container">
-      <input type="text" placeholder="Search..." className="search-input" />
-      <i className="search-icon">&#128269;</i>
+      <input type="text" placeholder="&#128269;Search..." className="search-input" />
+     
     </div>
   );
 };

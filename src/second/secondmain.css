@@ -1,0 +1,32 @@
+
+ 
+ .secondmaincontainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width:100%;
+  }
+  
+  .top-section {
+    height:25vh;   
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+  }
+  
+  .bottom-section {
+    height: 80%;
+    display: flex;
+  }
+  
+  .bottom-div {
+    flex: 1;
+    background-color: lightcoral;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid white;
+  }
+  

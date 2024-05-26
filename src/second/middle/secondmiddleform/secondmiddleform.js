@@ -1,38 +1,26 @@
 import React from 'react';
+import './secondmiddleform.css';
 
 const SecondMiddleForm = () => {
   return (
     <div className="container">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="form-group row">
-            <label htmlFor="name" className="col-sm-3 col-form-label">UPCOMING : </label>
-            <div className="col-sm-9">
-            <div className="text-center">
-  <input type="text" className="form-control text-center" id="name" value="Psychology : 30mins" />
-</div>
-
-            </div>
+      <div className="form">
+        <div className="form-row">
+          <label htmlFor="name" className="form-label">UPCOMING:</label>
+          <div className="form-input">
+            <input type="text" className="input text-center" id="name" value="Psychology : 30mins" readOnly />
           </div>
-          <div className="form-group row mt-3">
-            <label htmlFor="email" className="col-sm-3 col-form-label">CURRENTLY : </label>
-            <div className="col-sm-9">
-            <div className="text-center">
-  <input type="text" className="form-control text-center" id="name" value="0:39 sec" />
-</div>
-            </div>
-            
-          </div>
-         
-        
-
-
         </div>
-       
-
-        
-        <button className="btn btn-primary btn-block mt-3">Finished</button>
-        <button className="btn btn-primary btn-block mt-3">Secondary</button>
+        <div className="form-row">
+          <label htmlFor="current" className="form-label">CURRENTLY:</label>
+          <div className="form-input">
+            <input type="text" className="input text-center" id="current" value="0:39 sec" readOnly />
+          </div>
+        </div>
+        <div className="button-group">
+          <button className="btn">Finished</button>
+          <button className="btn">Secondary</button>
+        </div>
       </div>
     </div>
   );
