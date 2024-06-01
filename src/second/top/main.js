@@ -6,13 +6,13 @@ import TextDetails from './textdetails/textdetails';
 
 const SecondTopMain = () => {
   return (
-    <div className="button-row">
+   
+    <div className="button-row" >
      <Avatar src="https://owas.oncurehealth.com/logo.svg" alt="Avatar" />
       <TextDetails/>
-      <TextDetails/>
-      <TextDetails/>
+   
       <button className="reportsummary">Report Summary</button>
-    </div>
+   </div>
   );
 };
 

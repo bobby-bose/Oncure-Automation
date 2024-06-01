@@ -13,20 +13,35 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    
+    border:2px solid #99c1cb;
+    border-radius: 37px;  
   }
-  
   .bottom-section {
     height: 80%;
     display: flex;
+   
   }
   
-  .bottom-div {
-    flex: 1;
-    background-color: lightcoral;
+  .bottom-div-one, .bottom-div-three {
+    width:25%;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid white;
+    justify-content: flex-start;
+    align-items: flex-start;
+    border: 2px solid #99c1cb;
+    border-radius: 10px;
+    margin: 10px;
   }
+  
+  .bottom-div-two {
+    flex: 50%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    border: 2px solid #99c1cb;
+    border-radius: 10px;
+    margin: 10px;
+  }
+  
+  
+  
   

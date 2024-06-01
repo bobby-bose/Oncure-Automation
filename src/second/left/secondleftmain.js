@@ -1,22 +1,38 @@
-// src/SecondLeftMain.js
-import React from 'react';
-import SecondLeftSearch from './leftsearch/secondleftsearch';
+import React,{useState} from 'react';
 import './secondleftmain.css';
-import SecondLeftBox from './leftbox/secondleftbox';
-import SecondLeftFirstBox from './leftfirstbox/secondleftfirstbox';
-import SecondLeftSecondBox from './leftsecondbox/secondleftsecondbox';
 
 
-const SecondLeftMain = () => {
+
+const SecondLeftMain = ({simplepress}) => {
+ 
+
   return (
-    <div className="secondleftmaincontainer">
+    <div className="secondleftmaincontainer" >
       <button className='secondleftmainbutton'>
         Register Now
       </button>
-      <SecondLeftSearch />
-      <SecondLeftBox/>
-      <SecondLeftFirstBox />
-      <SecondLeftSecondBox />
+      <div class="search-bar">
+                <input type="text" name="search-record" id="search-record" placeholder="Search records" className="search-bar-input"/>
+            </div>
+            <div class="secondleftfirstboxitem"  onClick={() => simplepress(true)}>
+                    <span>Sabith p v</span>
+                    <span>OCW24052402</span>
+                    <span>2222222222</span>
+                    <span>dgaskdgdajhdajhdb</span>
+                </div>
+                <div class="secondleftsecondboxitem" onClick={() => simplepress(true)}>
+                    <span>Sabith p v</span>
+                    <span>OCW24052402</span>
+                    <span>2222222222</span>
+                    <span>dgaskdgdajhdajhdb</span>
+                </div>
+                <div class="secondleftsecondboxitem" onClick={() => simplepress(true)}>
+                    <span>Sabith p v</span>
+                    <span>OCW24052402</span>
+                    <span>2222222222</span>
+                    <span>dgaskdgdajhdajhdb</span>
+                </div>
+     
      
    
     </div>
