@@ -41,7 +41,133 @@
     border-radius: 10px;
     margin: 10px;
   }
+  h3 {
+    display: block;
+    font-size: 1.17em;
+    font-weight: bold;
+    text-align: center;
+  }
+  .secondrightfirstboxitem.active{
+    background: #15687C;
+    border: 1px solid #15687C;
+    color: #fff;
+  }
+  .secondrightfirstboxitem{
+    border: 1px solid #98a8ac;
+      margin-top: 8px;
+      border-radius: 4px;
+      background: #fff;
+      padding: 4px 8px;
+      color: #000;
+      font-size: 12px;
+      font-weight: 500;
+      text-wrap: nowrap;
+      cursor: pointer;
   
+    
+  }
+  .secondrightfirstbox{
+    width:100%;
+    padding:20px;
+  }
+  .secondrightfirstboxbutton{
+    background: #15687C;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      text-align: center;
+      margin-bottom: 40px;
+      width: 100%;
+  }
+  
+
+.secondleftmaincontainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start; /* Align items at the start of the column */
+  height: 100vh; /* Set the height of the column to the full viewport height */
+  padding: 20px; /* Add some padding around the column */
+  width:100%;
+
+
+}
+
+.secondleftmaincontainer button {
+  margin-bottom: 10px; /* Add some space between buttons */
+}
+
+.secondleftmainbutton {
+  background: #15687C;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.search-bar input {
+  padding: 8px;
+  width: 100%;
+  border: 1px solid #15687C;
+  border-radius: 4px;
+  font-size: 16;
+  margin-top: 6px;
+}
+
+.search-bar{
+  width:100%;
+}
+
+.secondleftfirstboxitem {
+  border: 1px solid #98a8ac;
+  margin-top: 8px;
+  border-radius: 4px;
+  background: #fff;
+  padding: 10px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    width:100%;
+}
+
+.secondleftsecondboxitem {
+  border: 1px solid #98a8ac;
+  margin-top: 8px;
+  border-radius: 4px;
+  background: #fff;
+  padding: 10px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    width:100%;
+}
+
+.secondleftboxspan{
+display: flex;
+flex-direction: column;
+}
+.secondleftboxspanname{
+font-weight: 600;
+}
   
   
   

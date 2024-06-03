@@ -11,7 +11,7 @@ const SecondTopMain = () => {
      <Avatar src="https://owas.oncurehealth.com/logo.svg" alt="Avatar" />
       <TextDetails/>
    
-      <button className="reportsummary">Report Summary</button>
+      <button className="reportsummary" style={{width:"30%"}}>Report Summary</button>
    </div>
   );
 };

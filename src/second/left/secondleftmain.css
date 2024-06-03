@@ -77,3 +77,11 @@
       line-height: 1.5;
       width:100%;
   }
+
+.secondleftboxspan{
+  display: flex;
+  flex-direction: column;
+}
+.secondleftboxspanname{
+  font-weight: 600;
+}
