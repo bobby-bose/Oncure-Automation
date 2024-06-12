@@ -8,39 +8,35 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import { API_ENDPOINTS } from '../constants';
 import { Button, Form, Modal } from 'react-bootstrap';
+import Cookies from 'js-cookie';
+
+
 
 const SecondMain = () => {
   const regid='MO1';
- 
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch Oncure Packages
-        const packagesResponse = await fetch(API_ENDPOINTS.PACKAGES_LIST);
-        const packagesData = await packagesResponse.json();
-        setOncurePackages(packagesData.list); // Adjust this if the structure is different
-
-        // Fetch Patients
-        const patientsResponse = await fetch(API_ENDPOINTS.PATIENTS_LIST);
-        const patientsData = await patientsResponse.json();
-        setData(patientsData); // Assuming patientsData is the data you need
-
-        const coordinationfacilitatorResponse = await fetch(API_ENDPOINTS.COORDINATIONFACILITATOR_LIST);
-        const coordinationfacilitatorData = await coordinationfacilitatorResponse.json();
-        setCoordinationFacilitator(coordinationfacilitatorData.list); 
-      
-        const mealsResponse = await fetch(API_ENDPOINTS.MEALS_LIST);
-        const mealsData = await mealsResponse.json();
-        setMeals(mealsData.list); 
-   
-      } catch (error) {
-        console.error('Error fetching data:', error);
+  const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + '=') {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
       }
-    };
-
-    fetchData();
-  }, []);
+    }
+    return cookieValue;
+  };
+  const [data, setData] = useState([]);
+    useEffect(() => {
+      fetch(API_ENDPOINTS.PATIENTS_LIST)
+        .then(response => response.json())
+        .then(data => {
+          setData(data);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }, []);
   const [formData, setFormData] = useState({
     name: '',
     regId: '',
@@ -57,20 +53,22 @@ const SecondMain = () => {
     setcurrentDepartment(section);
   };
 
+  const departments = [
+    'Oncology', 'Psychology', 'Pediatrics', 'Biology', 
+    'Criminology', 'English', 'Malayalam', 'Tamil'
+  ];
 
   const dispatch = useDispatch();
   const [leftform, showleftform] = useState(false);
   const [currentDepartment, setcurrentDepartment] = useState('');
+
+
+  
+
   const [time, setTime] = useState(10);
   const [progress, setProgress] = useState(100);
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef(null);
-  const [selectedPackage, setSelectedPackage] = React.useState('');
-  const [OncurePackages, setOncurePackages] = React.useState([]);
-  const [selectedCoordinationFacilitator, setselectedCoordinationFacilitator] = React.useState('');
-  const [CoordinationFacilitator, setCoordinationFacilitator] = React.useState([]);
-  const [selectedMeals, setselectedMeals] = React.useState('');
-  const [Meals, setMeals] = React.useState([]);
 
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
@@ -131,82 +129,40 @@ const SecondMain = () => {
 
   
 
- // Function to handle form submission
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const patientData = {
-    name: patientName,
-    age: age,
-    contact_number: contactNumber,
-    address: address,
-    coord_facilitator: selectedCoordinationFacilitator, // Add appropriate value
-    meals: selectedMeals, // Add appropriate value
-    chosen_package: selectedPackage, // Add appropriate value
-    assigned_department: null, // Add appropriate value
-    status: "", // Add appropriate value
-    current_department: "" // Add appropriate value
-  };
-
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/patients/add/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(patientData),
-    });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
-const [departments, setDepartments] = useState([]);
-    const [chosenPackageId, setChosenPackageId] = useState(0);
-    const [error, setError] = useState(null);
-    const fetchDepartments = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:8000/api/departments/list/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ chosenPackageId }), // Send chosenPackageId in the request body
-        });
-        if (!response.ok) {
-          console.log("!response.ok");
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        if (data.error) {
-          console.log("data.error");
-          setError(data.error);
-        } else {
-          console.log("setDepartments(data.list);");
-          setDepartments(data.list); // Extract the list key from the JSON response
-        }
-      } catch (error) {
-        setError(error.message);
-      }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+ 
+    setShowModal(false);
     
-const handlePatientClick = (patientId) => {
-  console.log("The patient id is",patientId);
-  setChosenPackageId(patientId);
-  console.log("After the sate change",chosenPackageId)
-  fetchDepartments();
-};
-useEffect(() => {
-  if (chosenPackageId !== 0) {
-    fetchDepartments();
-  }
-}, [chosenPackageId]);
+    const patientData = {
+      name: patientName,
+      age: age,
+      gender: gender,
+      contact_number: contactNumber,
+      address: address,
+    };
 
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/patients/add/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(patientData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const result = await response.json();
+      console.log('Success:', result);
+      setShowModal(false); // Hide modal on successful submission
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+  
 
   return (
     <div className="secondmaincontainer">
@@ -273,59 +229,6 @@ useEffect(() => {
               />
             </Form.Group>
 
-            <Form.Group controlId="oncurePackage">
-  <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Oncure Package</Form.Label>
-  <Form.Control
-    as="select"
-    value={selectedPackage}
-    onChange={(e) => setSelectedPackage(e.target.value)}
-  >
-    <option value="">Select a package</option>
-    {OncurePackages.map((pack) => (
-      <option key={pack.id} value={pack.id}>
-        {pack.name}
-      </option>
-    ))}
-  </Form.Control>
-</Form.Group>
-
-<Form.Group controlId="coordinationfacilitator">
-  <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Coordination Facilitator</Form.Label>
-  <Form.Control
-    as="select"
-    value={selectedCoordinationFacilitator}
-    onChange={(e) => setselectedCoordinationFacilitator(e.target.value)}
-  >
-    <option value="">Select a Coordination facilitator</option>
-    {CoordinationFacilitator.map((pack) => (
-      <option key={pack.id} value={pack.id}>
-        {pack.name}
-      </option>
-    ))}
-  </Form.Control>
-</Form.Group>
-
-<Form.Group controlId="meals">
-  <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Meals</Form.Label>
-  <Form.Control
-    as="select"
-    value={selectedMeals}
-    onChange={(e) => setselectedMeals(e.target.value)}
-  >
-    <option value="">Select a Meals</option>
-    {Meals.map((pack) => (
-      <option key={pack.id} value={pack.id}>
-        {pack.name}
-      </option>
-    ))}
-  </Form.Control>
-</Form.Group>
-
-
-    <Form.Group>
-    <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}></Form.Label>
-    </Form.Group>
-
             <Button variant="primary" type="submit">
               Submit
             </Button>
@@ -361,7 +264,7 @@ useEffect(() => {
             </div>
             <div style={{ width: '100%' }}>
       {data.map((patient, index) => (
-        <div className="secondleftfirstboxitem" key={index} onClick={() => handlePatientClick(patient.id)}>
+        <div className="secondleftfirstboxitem" key={index}>
           <div className="secondleftboxspan">
             <span className="secondleftboxspanname">Patient Name</span>
             <span className="value">{patient.name}</span>
@@ -441,12 +344,11 @@ useEffect(() => {
           <div className="secondrightfirstbox">
             <button className='secondrightfirstboxbutton'>GENERATE REPORT</button>
             <h3>SECTIONS</h3>
-            {departments.map((section) => (
-  <div key={section.id} className="secondrightfirstboxitem" onClick={() => { departmentFunction(section.name);}}>
-    {section.name}
-  </div>
-))}
-           
+            {['Anthropometry', 'Vitals', 'Blood Investigations', 'Scanning and X Ray', 'Psychology', 'Diet and Nutrition', 'Consultation Facilitation', 'Physical Fitness'].map((section, index) => (
+              <div key={index} className="secondrightfirstboxitem" onClick={() => { departmentFunction(section);}}>
+                {section}
+              </div>
+            ))}
           </div>
         </div>
       </div>
