@@ -63,6 +63,7 @@ const SecondMain = () => {
     const [chosenPackageId, setChosenPackageId] = useState(0);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [patientId, setpatientId] = useState(0);
     const [patientName, setPatientName] = useState('John Doe'); // Default value
     const [age, setAge] = useState(30); // Default value
     const [gender, setGender] = useState('male'); // Default value
@@ -117,6 +118,7 @@ const SecondMain = () => {
   const stopTimer = () => {
     clearInterval(intervalRef.current);
     setIsAnimating(false);
+    moveToNextDepartment(patientId, chosenPackageId, currentDepartmentId);
   };
   
   
@@ -199,6 +201,7 @@ const handleSubmit = async (e) => {
     
 const handlePatientClick = (patientId) => {
   console.log("The patient id is",patientId);
+  setpatientId(patientId);
   
   
   fetchDepartments(patientId);
@@ -274,6 +277,26 @@ const fetchCurrentDepartment = async (patientId) => {
     setError(error.message);
   }
 };
+
+const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmentId) => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/departments/next/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ patientId, chosenPackageId, currentDepartmentId }),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log('Successfully called the moveToNextDepartment():', data);
+  } catch (error) {
+    console.error('Error moving to next department:', error);
+  }
+};
+
 
   return (
     <div className="secondmaincontainer">
