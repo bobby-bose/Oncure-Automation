@@ -59,6 +59,15 @@ const SecondMain = () => {
 
 
   const dispatch = useDispatch();
+  const [departments, setDepartments] = useState([]);
+    const [chosenPackageId, setChosenPackageId] = useState(0);
+    const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [patientName, setPatientName] = useState('John Doe'); // Default value
+    const [age, setAge] = useState(30); // Default value
+    const [gender, setGender] = useState('male'); // Default value
+    const [contactNumber, setContactNumber] = useState('1234567890'); // Default value
+    const [address, setAddress] = useState('123 Main St'); // Default value  
   const [leftform, showleftform] = useState(false);
   const [currentDepartment, setcurrentDepartment] = useState('');
   const [time, setTime] = useState(10);
@@ -71,6 +80,8 @@ const SecondMain = () => {
   const [CoordinationFacilitator, setCoordinationFacilitator] = React.useState([]);
   const [selectedMeals, setselectedMeals] = React.useState('');
   const [Meals, setMeals] = React.useState([]);
+  const [currentDepartmentName, setCurrentDepartmentName] = useState(null);
+  const [currentDepartmentId, setCurrentDepartmentId] = useState(null);
 
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
@@ -119,14 +130,7 @@ const SecondMain = () => {
     }));
   };
 
-  const [showModal, setShowModal] = useState(false);
-
-  const [patientName, setPatientName] = useState('John Doe'); // Default value
-  const [age, setAge] = useState(30); // Default value
-  const [gender, setGender] = useState('male'); // Default value
-  const [contactNumber, setContactNumber] = useState('1234567890'); // Default value
-  const [address, setAddress] = useState('123 Main St'); // Default value
-
+ 
   const toggleModal = () => setShowModal(!showModal);
 
   
@@ -166,17 +170,15 @@ const handleSubmit = async (e) => {
     console.error('Error:', error);
   }
 };
-const [departments, setDepartments] = useState([]);
-    const [chosenPackageId, setChosenPackageId] = useState(0);
-    const [error, setError] = useState(null);
-    const fetchDepartments = async () => {
+
+    const fetchDepartments = async (patientId) => {
       try {
         const response = await fetch('http://127.0.0.1:8000/api/departments/list/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ chosenPackageId }), // Send chosenPackageId in the request body
+          body: JSON.stringify({ patientId }), // Send chosenPackageId in the request body
         });
         if (!response.ok) {
           console.log("!response.ok");
@@ -197,16 +199,81 @@ const [departments, setDepartments] = useState([]);
     
 const handlePatientClick = (patientId) => {
   console.log("The patient id is",patientId);
-  setChosenPackageId(patientId);
+  
+  
+  fetchDepartments(patientId);
   console.log("After the sate change",chosenPackageId)
-  fetchDepartments();
+  fetchCurrentDepartment(patientId);
 };
 useEffect(() => {
   if (chosenPackageId !== 0) {
     fetchDepartments();
   }
 }, [chosenPackageId]);
+useEffect(() => {
+  if (chosenPackageId !== 0) {
+    fetchCurrentDepartment(chosenPackageId);
+  }
+}, [chosenPackageId]);
 
+const handleDepartmentClick = (id, name) => {
+  setCurrentDepartmentId(id);
+  departmentFunction(name);
+  console.log("The Department Id and Package Id of the Patient is",id,chosenPackageId)
+  const getpatientstatus = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/patient/status/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ package_id: chosenPackageId, department_id: id }), // Send chosenPackageId in the request body
+      });
+      if (!response.ok) {
+        console.log("!response.ok");
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      if (data.error) {
+        console.log("data.error");
+        setError(data.error);
+      } else {
+        console.log("Successfull;");
+         // Extract the list key from the JSON response
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+  getpatientstatus();
+};
+const fetchCurrentDepartment = async (patientId) => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/departments/current/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id:patientId }), 
+    });
+    if (!response.ok) {
+      console.log("!response.ok");
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    if (data.error) {
+      console.log("data.error");
+      setError(data.error);
+    } else {
+      console.log("got the current department Id");
+      console.log(data.currentid);
+      setCurrentDepartmentName(data.currentid); 
+      setCurrentDepartmentId(data.currentid);
+    }
+  } catch (error) {
+    setError(error.message);
+  }
+};
 
   return (
     <div className="secondmaincontainer">
@@ -432,7 +499,7 @@ useEffect(() => {
                 )}
                 <Button variant="primary" onClick={() => addTime(5)} className="mb-2">Add 5 seconds</Button>
                 <Button variant="primary" onClick={() => addTime(10)} className="mb-2">Add 10 seconds</Button>
-                <Button variant="danger" onClick={stopTimer} className="mb-2">Stop</Button>
+                <Button variant="danger" onClick={stopTimer} className="mb-2">Completed</Button>
               </div>
             </div>
           )}
@@ -440,12 +507,20 @@ useEffect(() => {
         <div className="bottom-div-three">
           <div className="secondrightfirstbox">
             <button className='secondrightfirstboxbutton'>GENERATE REPORT</button>
-            <h3>SECTIONS</h3>
-            {departments.map((section) => (
-  <div key={section.id} className="secondrightfirstboxitem" onClick={() => { departmentFunction(section.name);}}>
-    {section.name}
-  </div>
-))}
+            <h3>STEPS</h3>
+          
+{departments.map((section) => (
+ 
+        <div
+          key={section.id}
+          className={`secondrightfirstboxitem ${currentDepartmentId === section.name ? 'active' : ''}`}
+          onClick={() => handleDepartmentClick(section.id)}
+        >
+          {section.name}
+          {console.log("The currentDepartmentId",currentDepartmentId)}
+          {console.log("The section.name",section.name)}
+        </div>
+      ))}
            
           </div>
         </div>
