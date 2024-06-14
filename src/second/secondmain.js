@@ -9,6 +9,7 @@ import React from 'react';
 import { API_ENDPOINTS } from '../constants';
 import { Button, Form, Modal } from 'react-bootstrap';
 
+
 const SecondMain = () => {
   const regid='MO1';
  
@@ -72,7 +73,7 @@ const SecondMain = () => {
   const [leftform, showleftform] = useState(false);
   const [currentDepartment, setcurrentDepartment] = useState('');
   const [time, setTime] = useState(10);
-  const [progress, setProgress] = useState(100);
+  
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef(null);
   const [selectedPackage, setSelectedPackage] = React.useState('');
@@ -83,61 +84,49 @@ const SecondMain = () => {
   const [Meals, setMeals] = React.useState([]);
   const [currentDepartmentName, setCurrentDepartmentName] = useState(null);
   const [currentDepartmentId, setCurrentDepartmentId] = useState(null);
-
+  const [selectedHour, setSelectedHour] = useState(0);
+  const [selectedMinute, setSelectedMinute] = useState(0);
+  const [progressBar, setProgressBar] = useState(100);
+  const [timer, setTimer] = useState(100);
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
   }, []);
 
+  
   const startTimer = () => {
-    setTime(10);
-    setProgress(100);
-    setIsAnimating(true);
-
-    intervalRef.current = setInterval(() => {
-      setTime((prevTime) => {
-        if (prevTime > 0) {
-          setProgress((prevTime - 1) * 10);
-          return prevTime - 1;
+    setIsAnimating(true); // Start animation
+    
+  };
+  useEffect(() => {
+    let intervalId;
+    if (isAnimating) {
+      intervalId = setInterval(() => {
+        if (timer > 0) {
+          setTimer((prevTimer) => prevTimer - 1);
+          console.log("THE SELECTED MINUTE IS",selectedMinute);
+          console.log("THE 100/selectedMinute is",100/selectedMinute );
+          setProgressBar((prevProgress) => prevProgress - (100 / selectedMinute));
         } else {
-          clearInterval(intervalRef.current);
+          clearInterval(intervalId);
           setIsAnimating(false);
-          return 0;
+          moveToNextDepartment(patientId, chosenPackageId, currentDepartmentId);
         }
-      });
-    }, 1000);
-  };
-
-  const addTime = (seconds) => {
-    setTime((prevTime) => {
-      const newTime = prevTime + seconds;
-      setProgress(newTime * 10);
-      return newTime;
-    });
-  };
-
+      }, 1000);
+    }
+    return () => clearInterval(intervalId);
+  }, [isAnimating, timer, selectedHour, selectedMinute]);
+  
+       
   const stopTimer = () => {
     clearInterval(intervalRef.current);
-    setIsAnimating(false);
+    setIsAnimating(false); // Stop animation
+    setProgressBar(100); // Reset progress bar
+    setTimer(selectedMinute * 60); // Reset timer
     moveToNextDepartment(patientId, chosenPackageId, currentDepartmentId);
-  };
-  
-  
-  
+};
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
-
- 
   const toggleModal = () => setShowModal(!showModal);
 
-  
-
- // Function to handle form submission
 const handleSubmit = async (e) => {
   e.preventDefault();
   const patientData = {
@@ -298,6 +287,20 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
 };
 
 
+
+  
+    const handleHourChange = (event) => {
+      setSelectedMinute(parseInt(event.target.value));
+    };
+    
+
+  const handleMinuteChange = (event) => {
+    setSelectedMinute(parseInt(event.target.value));
+  };
+  
+  const handleSetTime = () => {
+    alert(`Time set to: ${selectedHour} hours and ${selectedMinute} minutes`);
+  };
   return (
     <div className="secondmaincontainer">
       
@@ -513,15 +516,47 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
             </div>
           ) : (
             <div className="container text-center mt-5">
-              <ProgressBar now={progress} animated={isAnimating} />
-              <h2 className="mt-3">Current Department:{currentDepartment}</h2>
-              <h3>{`${String(Math.floor(time / 60)).padStart(2, '0')}:${String(time % 60).padStart(2, '0')}`}</h3>
+           
+           <ProgressBar now={progressBar} animated={isAnimating} />
+    
+
+
+
+              <h2 className="mt-3">Current Department:{currentDepartmentName}</h2>
+             
+              <h3>{selectedHour}:{selectedMinute}</h3>
+
+
               <div className="mt-3 d-flex flex-column">
                 {!isAnimating && (
                   <Button variant="success" onClick={startTimer} className="mb-2">Start</Button>
                 )}
-                <Button variant="primary" onClick={() => addTime(5)} className="mb-2">Add 5 seconds</Button>
-                <Button variant="primary" onClick={() => addTime(10)} className="mb-2">Add 10 seconds</Button>
+            <div className="duration-container">
+      <h2 className="timerh2">Select Time</h2>
+      <div className="dropdown-container">
+        <select
+          value={selectedHour}
+          onChange={handleHourChange}
+          className="dropdown"
+        >
+          {Array.from({ length: 24 }, (_, i) => (
+  <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} hours</option>
+))}
+
+        </select>
+        <select
+          value={selectedMinute}
+          onChange={handleMinuteChange}
+          className="dropdown"
+        >
+          {Array.from({ length: 60 }, (_, i) => (
+  <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} minutes</option>
+))}
+
+        </select>
+        <button onClick={handleSetTime} className="set-button">Set</button>
+      </div>
+    </div>
                 <Button variant="danger" onClick={stopTimer} className="mb-2">Completed</Button>
               </div>
             </div>
