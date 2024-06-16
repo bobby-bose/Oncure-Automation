@@ -44,13 +44,44 @@ const SecondMain = () => {
   }, []);
   const [formData, setFormData] = useState({
     name: '',
-    regId: '',
+    patientId: '',
     contactNumber: '',
     address: ''
   });
 
-  const handleButtonClick = (name, regId, contactNumber, address) => {
-    setFormData({ name, regId, contactNumber, address });
+  const handleButtonClick = (name, patientId, contactNumber, address) => {
+    setFormData({ name, patientId, contactNumber, address });
+  };
+
+  
+
+  const handleDelete = async (patientId) => {
+   
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/patients/delete/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ patientId }), // Send chosenPackageId in the request body
+        });
+        if (!response.ok) {
+          console.log("!response.ok");
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        if (data.error) {
+          console.log("data.error");
+          setError(data.error);
+        } else {
+          console.log("DELETED SUCCESSFULLY");
+           // Extract the list key from the JSON response
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+   
+  
   };
 
   const departmentFunction = (section) => {
@@ -88,6 +119,9 @@ const SecondMain = () => {
   const [selectedMinute, setSelectedMinute] = useState(0);
   const [progressBar, setProgressBar] = useState(100);
   const [timer, setTimer] = useState(100);
+
+  
+ 
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
   }, []);
@@ -301,6 +335,37 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
   const handleSetTime = () => {
     alert(`Time set to: ${selectedHour} hours and ${selectedMinute} minutes`);
   };
+
+  const handleMiddleSubmit = async (event) => {
+    event.preventDefault();
+   
+    
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/patients/edit/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  const handleMiddleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value
+    }));
+  };
   return (
     <div className="secondmaincontainer">
       
@@ -439,7 +504,7 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
               <p>Address: {address || 'N/A'}</p>
             </div>
           </div>
-          <button className="reportsummary" style={{ width: "30%" }}>Report Summary</button>
+         
         </div>
         
       </div>
@@ -454,6 +519,7 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
             </div>
             <div style={{ width: '100%' }}>
       {data.map((patient, index) => (
+        <div>
         <div className="secondleftfirstboxitem" key={index} onClick={() => handlePatientClick(patient.id)}>
           <div className="secondleftboxspan">
             <span className="secondleftboxspanname">Patient Name</span>
@@ -472,45 +538,49 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
             <span className="value">{patient.address}</span>
           </div>
         </div>
+        <div className="d-flex justify-content-between w-100 mt-2">
+        <button className="btn btn-success flex-grow-1 me-1" onClick={() => {
+          showleftform(true);
+          handleButtonClick(patient.name, patient.id, patient.mobile_number, patient.address);
+        }}>EDIT</button>
+
+          <button className="btn btn-danger flex-grow-1 ms-1"
+          onClick={() => {
+            handleDelete(patient.id);
+          }}
+          >DELETE</button>
+        </div>
+        </div>
       ))}
     </div>
-            <div className="d-flex justify-content-between w-100 mt-2">
-            <button className="btn btn-success flex-grow-1 me-1" onClick={() => {
-              showleftform(true);
-              handleButtonClick('ZAINUL ABIDEEN', 'M1-0120', '9447100534', 'Kozhikode');
-              
-            }}>EDIT</button>
-
-              <button className="btn btn-danger flex-grow-1 ms-1">DELETE</button>
-            </div>
+            
             
           </div>
         </div>
         <div className="bottom-div-two">
           {leftform ? (
-            <div className="form" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+            <div className="form" style={{ display: "flex", flexDirection: "column", width: "100%" }} onSubmit={handleMiddleSubmit}>
               <div className="ConsultationFacilitator">
               <form style={{ width: '100%' }}>
                   <div className="mb-3">
                     <label htmlFor="name" className="form-label">Name</label>
-                    <input type="text" className="form-control" id="name" value={formData.name} />
+                    <input type="text" className="form-control" id="name" value={formData.name} onChange={handleMiddleChange}/>
                   </div>
                   <div className="mb-3">
                     <label htmlFor="regId" className="form-label">Registration Id</label>
-                    <input type="text" className="form-control" id="regId" value={formData.regId} />
+                    <input type="text" className="form-control" id="regId" value={formData.regId} onChange={handleMiddleChange}/>
                   </div>
                   <div className="mb-3">
                     <label htmlFor="contactNumber" className="form-label">Contact Number</label>
-                    <input type="text" className="form-control" id="contactNumber" value={formData.contactNumber} />
+                    <input type="text" className="form-control" id="contactNumber" value={formData.contactNumber} onChange={handleMiddleChange}/>
                   </div>
                   <div className="mb-3">
                     <label htmlFor="address" className="form-label">Address</label>
-                    <input type="text" className="form-control" id="address" value={formData.address} />
+                    <input type="text" className="form-control" id="address" value={formData.address} onChange={handleMiddleChange}/>
                   </div>
-                  <div className="mb-3">
-                    <label htmlFor="consultationFacilitator" className="form-label">Consultation Facilitator</label>
-                    <input type="text" className="form-control" id="consultationFacilitator"  value={formData.consultationfacilitator} />
-                  </div>
+                  <button type="submit" style={{ backgroundColor: 'green', color: 'white' }}>
+        Submit
+      </button>
                 </form>
               </div>
             </div>
@@ -564,9 +634,7 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
         </div>
         <div className="bottom-div-three">
           <div className="secondrightfirstbox">
-            <button className='secondrightfirstboxbutton'>GENERATE REPORT</button>
             <h3>STEPS</h3>
-          
 {departments.map((section) => (
  
         <div
