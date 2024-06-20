@@ -54,7 +54,8 @@ class Main extends React.Component
             newdepartments:[],
             newassigneddepartment:null,
             remainingtime:0,
-            counterStatus:false
+            counterStatus:false,
+            showDeleteModal: false,
           };
           this.stopTimer = this.stopTimer.bind(this); 
           this.registernow = this.registernow.bind(this); 
@@ -65,6 +66,8 @@ class Main extends React.Component
           this.startTimer = this.startTimer.bind(this);
           this.handleHourChange = this.handleHourChange.bind(this); 
           this.handleMinuteChange = this.handleMinuteChange.bind(this); 
+          this.handlePackageChange = this.handlePackageChange.bind(this); 
+
         }
         fetchData = async () => {
             try {
@@ -192,6 +195,7 @@ class Main extends React.Component
   handleSubmit = async (e) => {
     e.preventDefault();
     const { patientName, age, contactNumber, address, selectedPackage } = this.state;
+    console.log("AAAAAAAAADDDDDDDDDDDDDD",patientName,age,selectedPackage);
     const patientData = {
       name: patientName,
       age: age,
@@ -287,18 +291,44 @@ this.setState({ status: true });
 
 Completed = async () => {
   try {
-    const { secondpatientId,newPatientChosenPackage } = this.state;
-    console.log("7777777777",secondpatientId,newPatientChosenPackage);
-    const response = await axios.post('http://127.0.0.1:8000/api/update_next_department/', { patId: secondpatientId,cho_pak:newPatientChosenPackage });
+    const { secondpatientId, newPatientChosenPackage } = this.state;
+    console.log("7777777777", secondpatientId, newPatientChosenPackage);
+    const response = await axios.post('http://127.0.0.1:8000/api/update_next_department/', { patId: secondpatientId, cho_pak: newPatientChosenPackage });
     console.log("NEXT DEPARTMENT NEXTTT", response.data.next_department);
+    if (response.data.next_department === "FINISHED") {
+      alert("Patient visited All Departments");
+      this.setState({
+        showDeleteModal: true
+      });
+    }
+    else{
+      this.setState({ newassigneddepartment: response.data.next_department }); 
+    }
+    
   } catch (error) {
     console.error("ERROR DEPARTMENT", error);
   }
 };
+handlePackageChange = (e) => {
+  console.log("THE NEW PACKAGE NAME IS",e.target.value);
+  this.setState({ selectedPackage: e.target.value });
+}
   registernow = async () => {
     this.fetchData();
     this.toggleModal();
   };
+  allfinished = (id) => {
+    this.handleDelete(id);
+}
+handleDeleteCloseModal=()=>{
+this.setState({ showDeleteModal: false});
+}
+handleDeleteConfirmDelete=()=>{
+  const { secondpatientId } = this.state;
+  this.handleDelete(secondpatientId);
+  this.setState({ showDeleteModal: false});
+}
+
   render() {
     const {
       data,
@@ -333,10 +363,24 @@ Completed = async () => {
       newPatientRemainingTime,
       newPatientTimerActive,
       newdepartments,
-            newassigneddepartment
+            newassigneddepartment,
+            showDeleteModal
     } = this.state;
+   
     return (
         <div className="secondmaincontainer">
+            <Modal show={showDeleteModal} onHide={this.handleDeleteCloseModal} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        The patient has completed all the departments. Can we remove him from the list?
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={this.handleDeleteCloseModal}>Cancel</Button>
+                        <Button variant="primary" onClick={this.handleDeleteConfirmDelete}>OK</Button>
+                    </Modal.Footer>
+                </Modal>
         <Modal show={showModal} onHide={this.toggleModal} centered>
           <Modal.Header closeButton>
             <Modal.Title>Patient Form</Modal.Title>
@@ -392,7 +436,6 @@ Completed = async () => {
                   onChange={(e) => this.setState({ address: e.target.value })}
                 />
               </Form.Group>
-
               <Form.Group controlId="selectedCoordinationFacilitatorformid">
                 <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Coordination Facilitator</Form.Label>
                 <Form.Control
@@ -409,19 +452,20 @@ Completed = async () => {
               </Form.Group>
 
               <Form.Group controlId="selectedPackage">
-                <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Package</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={selectedPackage}
-                  onChange={(e) => this.setState({ selectedPackage: e.target.value })}
-                >
-                  {OncurePackages.map((pkg) => (
-                    <option key={pkg.id} value={pkg.id}>
-                      {pkg.name}
-                    </option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
+        <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Package</Form.Label>
+        <Form.Control
+          as="select"
+          value={this.selectedPackage}
+          onChange={(e) => this.setState({ selectedPackage: e.target.value })}
+        >
+         
+          {OncurePackages.map((pkg) => (
+            <option key={pkg.id} value={pkg.id}>
+              {pkg.name}
+            </option>
+          ))}
+        </Form.Control>
+      </Form.Group>
 
               <Button variant="primary" type="submit">
                 Submit

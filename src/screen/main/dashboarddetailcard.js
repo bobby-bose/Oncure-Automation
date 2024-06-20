@@ -29,11 +29,11 @@ export default function RowAndColumnSpacing() {
       console.error('Error fetching card details:', error);
     }
   };
-  // useEffect(() => {
-  //   fetchCardDetails();
-  //   const intervalId = setInterval(fetchCardDetails, 1000); 
-  //   return () => clearInterval(intervalId);
-  // }, []);
+  useEffect(() => {
+    fetchCardDetails();
+    const intervalId = setInterval(fetchCardDetails, 1000); 
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -42,7 +42,7 @@ export default function RowAndColumnSpacing() {
           <Grid item xs={6} key={index}>
             <Item>
               <div className={`card ${index % 2 === 0 ? 'left-card' : 'right-card'}`}>
-                <h2>{card.id}</h2>
+                {/* <h2>{card.id}</h2> */}
                 <h2>{card.patient_name}</h2>
                 <div className="button-container">
                   <button>{card.buttonText}</button>
@@ -52,11 +52,11 @@ export default function RowAndColumnSpacing() {
                 </div>
                 <h3>Upcoming</h3>
                 <button>{card.upcoming}</button>
-                <ul>
+                {/* <ul>
                   {card.remaining_departments.map((item, idx) => (
                     <li key={idx}>{item}</li>
                   ))}
-                </ul>
+                </ul> */}
               </div>
             </Item>
           </Grid>
