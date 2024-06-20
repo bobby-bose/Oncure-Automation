@@ -1,14 +1,13 @@
 import './secondmain.css';
 import Avatar from './top/logo/logo';
-import SecondLeftMain from './left/secondleftmain';
-import { useSelector, useDispatch } from 'react-redux';
+import {  useDispatch } from 'react-redux';
 import { useState, useEffect, useRef } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import { API_ENDPOINTS } from '../constants';
 import { Button, Form, Modal } from 'react-bootstrap';
-
+import axios from 'axios';
 
 const SecondMain = () => {
   const regid='MO1';
@@ -17,46 +16,41 @@ const SecondMain = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Oncure Packages
         const packagesResponse = await fetch(API_ENDPOINTS.PACKAGES_LIST);
         const packagesData = await packagesResponse.json();
-        setOncurePackages(packagesData.list); // Adjust this if the structure is different
-
-        // Fetch Patients
+        setOncurePackages(packagesData.list); // Ensure this matches the actual structure
+  
         const patientsResponse = await fetch(API_ENDPOINTS.PATIENTS_LIST);
         const patientsData = await patientsResponse.json();
         setData(patientsData); // Assuming patientsData is the data you need
-
+  
         const coordinationfacilitatorResponse = await fetch(API_ENDPOINTS.COORDINATIONFACILITATOR_LIST);
         const coordinationfacilitatorData = await coordinationfacilitatorResponse.json();
-        setCoordinationFacilitator(coordinationfacilitatorData.list); 
-      
+        setCoordinationFacilitator(coordinationfacilitatorData.list); // Ensure this matches the actual structure
+  
         const mealsResponse = await fetch(API_ENDPOINTS.MEALS_LIST);
         const mealsData = await mealsResponse.json();
-        setMeals(mealsData.list); 
-   
+        setMeals(Array.isArray(mealsData.list) ? mealsData.list : []);
+  
+       
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
+  
     fetchData();
   }, []);
+  
   const [formData, setFormData] = useState({
     name: '',
     patientId: '',
     contactNumber: '',
     address: ''
-  });
-
+  });    
   const handleButtonClick = (name, patientId, contactNumber, address) => {
     setFormData({ name, patientId, contactNumber, address });
   };
-
-  
-
   const handleDelete = async (patientId) => {
-   
       try {
         const response = await fetch('http://127.0.0.1:8000/api/patients/delete/', {
           method: 'POST',
@@ -66,45 +60,32 @@ const SecondMain = () => {
           body: JSON.stringify({ patientId }), // Send chosenPackageId in the request body
         });
         if (!response.ok) {
-          console.log("!response.ok");
+         
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
         if (data.error) {
-          console.log("data.error");
+         
           setError(data.error);
         } else {
-          console.log("DELETED SUCCESSFULLY");
-           // Extract the list key from the JSON response
+       
         }
       } catch (error) {
         setError(error.message);
       }
-   
-  
   };
-
-  const departmentFunction = (section) => {
-    showleftform(false);
-    setcurrentDepartment(section);
-  };
-
-
-  const dispatch = useDispatch();
   const [departments, setDepartments] = useState([]);
-    const [chosenPackageId, setChosenPackageId] = useState(0);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [patientId, setpatientId] = useState(0);
-    const [patientName, setPatientName] = useState('John Doe'); // Default value
-    const [age, setAge] = useState(30); // Default value
-    const [gender, setGender] = useState('male'); // Default value
-    const [contactNumber, setContactNumber] = useState('1234567890'); // Default value
-    const [address, setAddress] = useState('123 Main St'); // Default value  
+    const [patientName, setPatientName] = useState('John Doe'); 
+    const [patientId, setpatientId] = useState(null); 
+    const [age, setAge] = useState(30);
+    const [gender, setGender] = useState('male'); 
+    const [contactNumber, setContactNumber] = useState('1234567890'); 
+    const [address, setAddress] = useState('123 Main St'); 
   const [leftform, showleftform] = useState(false);
   const [currentDepartment, setcurrentDepartment] = useState('');
-  const [time, setTime] = useState(10);
-  
+  const [currentPackage, setcurrentPackage] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef(null);
   const [selectedPackage, setSelectedPackage] = React.useState('');
@@ -112,53 +93,47 @@ const SecondMain = () => {
   const [selectedCoordinationFacilitator, setselectedCoordinationFacilitator] = React.useState('');
   const [CoordinationFacilitator, setCoordinationFacilitator] = React.useState([]);
   const [selectedMeals, setselectedMeals] = React.useState('');
-  const [Meals, setMeals] = React.useState([]);
-  const [currentDepartmentName, setCurrentDepartmentName] = useState(null);
-  const [currentDepartmentId, setCurrentDepartmentId] = useState(null);
+  
+  
   const [selectedHour, setSelectedHour] = useState(0);
   const [selectedMinute, setSelectedMinute] = useState(0);
   const [progressBar, setProgressBar] = useState(100);
   const [timer, setTimer] = useState(100);
-
+  const [middlecurrentdepartment, setmiddlecurrentdepartment] = React.useState('');
   
- 
-  useEffect(() => {
-    return () => clearInterval(intervalRef.current);
-  }, []);
-
   
-  const startTimer = () => {
-    setIsAnimating(true); // Start animation
-    
-  };
-  useEffect(() => {
-    let intervalId;
-    if (isAnimating) {
-      intervalId = setInterval(() => {
-        if (timer > 0) {
-          setTimer((prevTimer) => prevTimer - 1);
-          console.log("THE SELECTED MINUTE IS",selectedMinute);
-          console.log("THE 100/selectedMinute is",100/selectedMinute );
-          setProgressBar((prevProgress) => prevProgress - (100 / selectedMinute));
-        } else {
-          clearInterval(intervalId);
-          setIsAnimating(false);
-          moveToNextDepartment(patientId, chosenPackageId, currentDepartmentId);
-        }
-      }, 1000);
+  const [mobileNumber, setMobileNumber] = useState('1234567890');
+  
+  const [coordFacilitator, setCoordFacilitator] = useState(1);
+  const [isRunning, setIsRunning] = useState(false);
+  
+  const [chosenPackage, setChosenPackage] = useState(1);
+  const [assignedDepartment, setAssignedDepartment] = useState(1);
+  const [chosenTime, setChosenTime] = useState(null);
+  const [remainingTime, setRemainingTime] = useState(null);
+  const [timerActive, setTimerActive] = useState(false);
+
+  const startTimer = async () => {
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/api/update-patient-timer-active/',{ patId: patientId,status:true });
+      
+    } catch (error) {
+      console.error("Error updating timer:", error);
     }
-    return () => clearInterval(intervalId);
-  }, [isAnimating, timer, selectedHour, selectedMinute]);
+  };
+  const stopTimer = async () => {
+    try {
+      
+      const response = await axios.post('http://127.0.0.1:8000/api/update-patient-timer-active/',{ patId: patientId,status:false });
+     
+    } catch (error) {
+      console.error("Error updating timer:", error);
+    }
+  };
+  
   
        
-  const stopTimer = () => {
-    clearInterval(intervalRef.current);
-    setIsAnimating(false); // Stop animation
-    setProgressBar(100); // Reset progress bar
-    setTimer(selectedMinute * 60); // Reset timer
-    moveToNextDepartment(patientId, chosenPackageId, currentDepartmentId);
-};
-
+  
   const toggleModal = () => setShowModal(!showModal);
 
 const handleSubmit = async (e) => {
@@ -190,156 +165,69 @@ const handleSubmit = async (e) => {
     }
 
     const data = await response.json();
-    console.log(data);
+  
   } catch (error) {
     console.error('Error:', error);
   }
 };
 
-    const fetchDepartments = async (patientId) => {
-      try {
-        const response = await fetch('http://127.0.0.1:8000/api/departments/list/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ patientId }), // Send chosenPackageId in the request body
-        });
-        if (!response.ok) {
-          console.log("!response.ok");
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        if (data.error) {
-          console.log("data.error");
-          setError(data.error);
-        } else {
-          console.log("setDepartments(data.list);");
-          setDepartments(data.list); // Extract the list key from the JSON response
-        }
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-    
-const handlePatientClick = (patientId) => {
-  console.log("The patient id is",patientId);
-  setpatientId(patientId);
-  
-  
-  fetchDepartments(patientId);
-  console.log("After the sate change",chosenPackageId)
-  fetchCurrentDepartment(patientId);
-};
-useEffect(() => {
-  if (chosenPackageId !== 0) {
-    fetchDepartments();
-  }
-}, [chosenPackageId]);
-useEffect(() => {
-  if (chosenPackageId !== 0) {
-    fetchCurrentDepartment(chosenPackageId);
-  }
-}, [chosenPackageId]);
 
-const handleDepartmentClick = (id, name) => {
-  setCurrentDepartmentId(id);
-  departmentFunction(name);
-  console.log("The Department Id and Package Id of the Patient is",id,chosenPackageId)
-  const getpatientstatus = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:8000/api/patient/status/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ package_id: chosenPackageId, department_id: id }), // Send chosenPackageId in the request body
-      });
-      if (!response.ok) {
-        console.log("!response.ok");
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      if (data.error) {
-        console.log("data.error");
-        setError(data.error);
-      } else {
-        console.log("Successfull;");
-         // Extract the list key from the JSON response
-      }
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-  getpatientstatus();
+    
+const handlePatientClick = (iddd) => {
+  setpatientId(iddd);
+  fetchfullpatientdetails(iddd);
 };
-const fetchCurrentDepartment = async (patientId) => {
+useEffect(() => {
+  console.log('1234567890', patientId);
+  console.log('1234567890----', remainingTime);
+}, [patientId,remainingTime])
+const fetchfullpatientdetails = async (idd) => {
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/departments/current/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id:patientId }), 
-    });
-    if (!response.ok) {
-      console.log("!response.ok");
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    if (data.error) {
-      console.log("data.error");
-      setError(data.error);
+    console.log("6666",patientId);
+    const response = await axios.post('http://127.0.0.1:8000/api/patient/details/', { id: idd });
+    const data = response.data.data[0].fields;  // Ensure you access the fields correctly
+    const depart = response.data.depart;
+    const curr_dept=response.data.assigned_dep;
+    setPatientName(data.name);
+    setAge(data.age);
+    setMobileNumber(data.mobile_number);
+    setAddress(data.address);
+    setCoordFacilitator(data.coord_facilitator);
+    setMeals(data.meals);
+    setChosenPackage(data.chosen_package);
+    setAssignedDepartment(data.assigned_department);
+    setChosenTime(data.chosen_time);
+    setTimerActive(data.timer_active);
+    setcurrentDepartment(curr_dept[0].fields.name);
+    if (Array.isArray(depart)) {
+      const transformedData = depart.map(dept => ({
+        id: dept.pk,
+        name: dept.fields.name,
+        oncurepackage: dept.fields.oncurepackage
+      }));
+      setDepartments(transformedData);
     } else {
-      console.log("got the current department Id");
-      console.log(data.currentid);
-      setCurrentDepartmentName(data.currentid); 
-      setCurrentDepartmentId(data.currentid);
+      console.error("Depart is not an array:", depart);
     }
+   
   } catch (error) {
-    setError(error.message);
+    console.error("Error fetching patient data", error);
   }
 };
-
-const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmentId) => {
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/departments/next/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ patientId, chosenPackageId, currentDepartmentId }),
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    console.log('Successfully called the moveToNextDepartment():', data);
-  } catch (error) {
-    console.error('Error moving to next department:', error);
-  }
-};
-
-
-
-  
     const handleHourChange = (event) => {
-      setSelectedMinute(parseInt(event.target.value));
+      setSelectedHour(parseInt(event.target.value));
     };
-    
-
   const handleMinuteChange = (event) => {
     setSelectedMinute(parseInt(event.target.value));
   };
   
   const handleSetTime = () => {
     alert(`Time set to: ${selectedHour} hours and ${selectedMinute} minutes`);
+    updatemiddletimer();
   };
 
   const handleMiddleSubmit = async (event) => {
     event.preventDefault();
-   
-    
     try {
       const response = await fetch('http://127.0.0.1:8000/api/patients/edit/', {
         method: 'POST',
@@ -354,7 +242,7 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
       }
   
       const data = await response.json();
-      console.log(data);
+     
     } catch (error) {
       console.error('Error:', error);
     }
@@ -366,10 +254,80 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
       [id]: value
     }));
   };
+  
+  
+
+
+const updateTimers = () => {
+  axios.post('http://127.0.0.1:8000/api/update-timers/', {
+    patientId: patientId,  
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': 'your-csrf-token',  // Don't forget to replace 'your-csrf-token' with the actual CSRF token
+    }
+  })
+    .then(response => {
+      if (response.status === 200) {
+        if(response.data.currenttime){
+        setRemainingTime(response.data.currenttime);
+      }
+
+      } else {
+        console.error('Failed to update timers');
+      }
+    })
+    .catch(error => {
+      console.error('Error updating timers:', error);
+    });
+};
+const fetchpatientTimers = async () => {
+  console.log("Fetching timers for patient ID:", patientId);
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/fetch-timers/', {
+      idd: patientId,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': 'your-csrf-token',  
+      }
+    });
+
+    if (response.status === 200) {
+      console.log("Received timer data:", response.data.result);
+      setRemainingTime(response.data.result);
+    } else {
+      console.error('Failed to fetch timers');
+    }
+  } catch (error) {
+    console.error('Error fetching timers:', error);
+  }
+};
+
+
+useEffect(() => {
+  const intervalId = setInterval(() => {
+    fetchpatientTimers();
+    console.log("UUUUUUUUUUUUUUUUUUUUUUUUUUU",patientId);
+  }, 1000);
+  return () => {
+    clearInterval(intervalId);
+  };
+}, [isRunning]);
+
+  const updatemiddletimer = async () => {
+    try {
+      var newTime=selectedHour+":"+selectedMinute;
+      const response = await axios.post('http://127.0.0.1:8000/api/update_middle_timer/',{ patId: patientId,timer:newTime });
+    } catch (error) {
+      console.error("Error updating timer:", error);
+    }
+  };
+
+
+  
   return (
     <div className="secondmaincontainer">
-      
-            
       <Modal show={showModal} onHide={toggleModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Patient Form</Modal.Title>
@@ -462,35 +420,15 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
     ))}
   </Form.Control>
 </Form.Group>
-
-<Form.Group controlId="meals">
-  <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Meals</Form.Label>
-  <Form.Control
-    as="select"
-    value={selectedMeals}
-    onChange={(e) => setselectedMeals(e.target.value)}
-  >
-    <option value="">Select a Meals</option>
-    {Meals.map((pack) => (
-      <option key={pack.id} value={pack.id}>
-        {pack.name}
-      </option>
-    ))}
-  </Form.Control>
-</Form.Group>
-
-
     <Form.Group>
     <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}></Form.Label>
     </Form.Group>
-
             <Button variant="primary" type="submit">
               Submit
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
-          
       <div className="top-section">
         <div className="button-row">
           <Avatar src="https://owas.oncurehealth.com/logo.svg" alt="Avatar" />
@@ -543,7 +481,6 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
           showleftform(true);
           handleButtonClick(patient.name, patient.id, patient.mobile_number, patient.address);
         }}>EDIT</button>
-
           <button className="btn btn-danger flex-grow-1 ms-1"
           onClick={() => {
             handleDelete(patient.id);
@@ -553,8 +490,6 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
         </div>
       ))}
     </div>
-            
-            
           </div>
         </div>
         <div className="bottom-div-two">
@@ -586,50 +521,42 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
             </div>
           ) : (
             <div className="container text-center mt-5">
-           
            <ProgressBar now={progressBar} animated={isAnimating} />
-    
-
-
-
-              <h2 className="mt-3">Current Department:{currentDepartmentName}</h2>
-             
-              <h3>{selectedHour}:{selectedMinute}</h3>
-
-
+              <h2 className="mt-3">Current Department:{currentDepartment}</h2> 
+              <h3>Time: {remainingTime}</h3>
               <div className="mt-3 d-flex flex-column">
                 {!isAnimating && (
                   <Button variant="success" onClick={startTimer} className="mb-2">Start</Button>
                 )}
             <div className="duration-container">
-      <h2 className="timerh2">Select Time</h2>
-      <div className="dropdown-container">
-        <select
-          value={selectedHour}
-          onChange={handleHourChange}
-          className="dropdown"
-        >
-          {Array.from({ length: 24 }, (_, i) => (
-  <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} hours</option>
-))}
+                    <h2 className="timerh2">Select Time</h2>
+                    <div className="dropdown-container">
+                      <select
+                        value={selectedHour}
+                        onChange={handleHourChange}
+                        className="dropdown"
+                      >
+                        {Array.from({ length: 24 }, (_, i) => (
+                <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} hours</option>
+              ))}
 
-        </select>
-        <select
-          value={selectedMinute}
-          onChange={handleMinuteChange}
-          className="dropdown"
-        >
-          {Array.from({ length: 60 }, (_, i) => (
-  <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} minutes</option>
-))}
+                      </select>
+                      <select
+                        value={selectedMinute}
+                        onChange={handleMinuteChange}
+                        className="dropdown"
+                      >
+                        {Array.from({ length: 60 }, (_, i) => (
+                <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} minutes</option>
+              ))}
 
-        </select>
-        <button onClick={handleSetTime} className="set-button">Set</button>
-      </div>
-    </div>
-                <Button variant="danger" onClick={stopTimer} className="mb-2">Completed</Button>
-              </div>
-            </div>
+                      </select>
+                      <button onClick={handleSetTime} className="set-button">Set</button>
+                    </div>
+                  </div>
+                              <Button variant="danger" onClick={stopTimer} className="mb-2">Completed</Button>
+                            </div>
+                          </div>
           )}
         </div>
         <div className="bottom-div-three">
@@ -639,15 +566,12 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
  
         <div
           key={section.id}
-          className={`secondrightfirstboxitem ${currentDepartmentId === section.name ? 'active' : ''}`}
-          onClick={() => handleDepartmentClick(section.id)}
+          className={`secondrightfirstboxitem ${currentDepartment === section.name ? 'active' : ''}`}
+          
         >
           {section.name}
-          {console.log("The currentDepartmentId",currentDepartmentId)}
-          {console.log("The section.name",section.name)}
         </div>
       ))}
-           
           </div>
         </div>
       </div>
@@ -656,4 +580,3 @@ const moveToNextDepartment = async (patientId, chosenPackageId, currentDepartmen
 };
 
 export default SecondMain;
-

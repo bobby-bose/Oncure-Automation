@@ -15,23 +15,25 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function RowAndColumnSpacing() {
   const [cardDetails, setCardDetails] = useState([]);
-
+  
+  
   const fetchCardDetails = async () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/api/patient-card-details/');
       const data = await response.json();
-      console.log("First full Data",data.cardDetails);
+      console.log("First full Data", data.cardDetails);
       setCardDetails(data.cardDetails);
+      
+      console.log("EACH SECOND",cardDetails);
     } catch (error) {
       console.error('Error fetching card details:', error);
     }
   };
-
-  useEffect(() => {
-    fetchCardDetails();
-    const intervalId = setInterval(fetchCardDetails, 1000);
-    return () => clearInterval(intervalId);
-  }, []);
+  // useEffect(() => {
+  //   fetchCardDetails();
+  //   const intervalId = setInterval(fetchCardDetails, 1000); 
+  //   return () => clearInterval(intervalId);
+  // }, []);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -44,7 +46,9 @@ export default function RowAndColumnSpacing() {
                 <h2>{card.patient_name}</h2>
                 <div className="button-container">
                   <button>{card.buttonText}</button>
-                  <span className="time">{card.time}</span>
+                  <span className="time">
+                   {card.time}
+                  </span>
                 </div>
                 <h3>Upcoming</h3>
                 <button>{card.upcoming}</button>

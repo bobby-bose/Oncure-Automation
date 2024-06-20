@@ -1,5 +1,5 @@
 import React from 'react';
-import SecondMain from './second/secondmain';
+import Main from './second/main';
 import DashboardDetailCard from './screen/main/dashboarddetailcard';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -12,7 +12,7 @@ const App = () => {
       <Router>
       <Routes>
       <Route path="/" element={<DashboardDetailCard />} />
-          <Route path="/second" element={<SecondMain />} />
+          <Route path="/second" element={<Main />} />
       </Routes>
     </Router>
   
