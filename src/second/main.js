@@ -19,7 +19,7 @@ class Main extends React.Component
             departments: [],
             selectedHour: 0,
             selectedMinute: 0,
-            remainingTime: 0,
+            
             showModal: false,
             patientName: 'John Doe',
             patientId: null,
@@ -39,9 +39,22 @@ class Main extends React.Component
               contactNumber: '',
               address: ''
             },
-            newpatientdata:null,
+            newPatientId: 0,
+      newPatientName: '',
+      newPatientAge: 0,
+      newPatientMobileNumber: '',
+      newPatientAddress: '',
+      newPatientCoordFacilitator: 0,
+      newPatientMeals: null,
+      newPatientChosenPackage: null,
+      newPatientAssignedDepartment: 0,
+      newPatientChosenTime: 0,
+      newPatientRemainingTime: 1,
+      newPatientTimerActive: false,
             newdepartments:[],
-            newassigneddepartment:null
+            newassigneddepartment:null,
+            remainingtime:0,
+            counterStatus:false
           };
           this.stopTimer = this.stopTimer.bind(this); 
           this.registernow = this.registernow.bind(this); 
@@ -49,7 +62,7 @@ class Main extends React.Component
           this.handleDelete = this.handleDelete.bind(this); 
           this.handleMiddleSubmit = this.handleMiddleSubmit.bind(this); 
           this.handleMiddleChange = this.handleMiddleChange.bind(this); 
-          this.startTimer = this.startTimer.bind(this); 
+          this.startTimer = this.startTimer.bind(this);
           this.handleHourChange = this.handleHourChange.bind(this); 
           this.handleMinuteChange = this.handleMinuteChange.bind(this); 
         }
@@ -75,23 +88,29 @@ class Main extends React.Component
               console.error('Error fetching patients data:', error);
             }
           };
+          
+
   componentDidMount() {
-    this.fetchPatients();
     this.intervalId = setInterval(this.fetchPatients, 1000);
+    this.interval = setInterval(() => {
+      if (this.state.status) {
+        this.updateeachsecond();
+      }
+    }, 1000);
+   
   }
+
+  
   componentWillUnmount() {
     clearInterval(this.intervalId);
+    clearInterval(this.interval);
   }
   changeColor = () => {
     this.setState({color: "blue"});
   }
   stopTimer = async () => {
-    try {
-      const { patientId } = this.state;
-      await axios.post('http://127.0.0.1:8000/api/update-patient-timer-active/', { patId: patientId, status: false });
-    } catch (error) {
-      console.error("Error updating timer:", error);
-    }
+    this.setState({ status: false }); 
+    
   };
    
   handleSetTime = () => {
@@ -119,9 +138,12 @@ class Main extends React.Component
   };
   updatemiddletimer = async () => {
     try {
-      const { selectedHour, selectedMinute, patientId } = this.state;
+      const { selectedHour, selectedMinute, secondpatientId } = this.state;
       const newTime = `${selectedHour}:${selectedMinute}`;
-      await axios.post('http://127.0.0.1:8000/api/update_middle_timer/', { patId: patientId, timer: newTime });
+      console.log("EEEEEEEEEEEEAAAAAAAAAACH",selectedHour, selectedMinute, secondpatientId);
+      const response=await axios.post('http://127.0.0.1:8000/api/update_middle_timer/', { patId: secondpatientId, timer: newTime });
+      console.log("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",response.data.remaining_time);
+      this.setState({ remainingtime: response.data.remaining_time });
     } catch (error) {
       console.error("Error updating timer:", error);
     }
@@ -143,7 +165,19 @@ class Main extends React.Component
       console.log("4444444444444444",secondpatientId);
       const response = await axios.post('http://127.0.0.1:8000/api/patient/details/', { patId: secondpatientId });
       console.log("1111111111111111111111", response.data.data);
-      this.setState({ newpatientdata: response.data.departments }); 
+      this.setState({
+        newPatientName: response.data.name || '',
+        newPatientAge: response.data.age || 0,
+        newPatientMobileNumber: response.data.mobile_number || '',
+        newPatientAddress: response.data.address || '',
+        newPatientCoordFacilitator: response.data.coord_facilitator || 0,
+        newPatientMeals: response.data.meals || null,
+        newPatientChosenPackage: response.data.data.chosen_package || 0,
+        newPatientAssignedDepartment: response.data.assigned_department || 0,
+        newPatientChosenTime: response.data.chosen_time || 0,
+        newPatientRemainingTime: response.data.data.remaining_time || 1,
+        newPatientTimerActive: response.data.timer_active || false,
+      });
       console.log("1111111111111111111111", response.data.departments);
       this.setState({ newdepartments: response.data.departments }); 
       console.log("1111111111111111111111", response.data.assigned_dep);
@@ -231,14 +265,36 @@ class Main extends React.Component
     }
   };
   startTimer = async () => {
-    try {
-      const { patientId } = this.state;
-      await axios.post('http://127.0.0.1:8000/api/update-patient-timer-active/', { patId: patientId, status: true });
-    } catch (error) {
-      console.error("Error updating timer:", error);
-    }
+console.log("Started the updation of time");
+this.setState({ status: true });
   };
+  updateeachsecond = async () => {
+    try {
+      const { secondpatientId } = this.state;
+      console.log("111111111111111111111111111111111111",secondpatientId);
+      const response = await axios.post('http://127.0.0.1:8000/api/update_each_second/', { patId: secondpatientId });
+      console.log("000000000", response.data);
+      if (response.data.updated_time === 0) {
+        this.setState({ status: false });
+      }
+      this.setState({
+        newPatientRemainingTime: response.data.updated_time || 1,
+      });
+    } catch (error) {
+      console.error("Error updating patient remaining time", error);
+    }
+};
 
+Completed = async () => {
+  try {
+    const { secondpatientId,newPatientChosenPackage } = this.state;
+    console.log("7777777777",secondpatientId,newPatientChosenPackage);
+    const response = await axios.post('http://127.0.0.1:8000/api/update_next_department/', { patId: secondpatientId,cho_pak:newPatientChosenPackage });
+    console.log("NEXT DEPARTMENT NEXTTT", response.data.next_department);
+  } catch (error) {
+    console.error("ERROR DEPARTMENT", error);
+  }
+};
   registernow = async () => {
     this.fetchData();
     this.toggleModal();
@@ -251,7 +307,6 @@ class Main extends React.Component
       departments,
       selectedHour,
       selectedMinute,
-      remainingTime,
       showModal,
       patientName,
       patientId,
@@ -265,7 +320,18 @@ class Main extends React.Component
       selectedPackage,
       OncurePackages,
       formData,
-      newpatientdata,
+      newPatientId,
+      newPatientName,
+      newPatientAge,
+      newPatientMobileNumber,
+      newPatientAddress,
+      newPatientCoordFacilitator,
+      newPatientMeals,
+      newPatientChosenPackage,
+      newPatientAssignedDepartment,
+      newPatientChosenTime,
+      newPatientRemainingTime,
+      newPatientTimerActive,
       newdepartments,
             newassigneddepartment
     } = this.state;
@@ -458,7 +524,7 @@ class Main extends React.Component
                 <div className="container text-center mt-5">
                <ProgressBar now={progressBar}  />
                   <h2 className="mt-3">Current Department:{newassigneddepartment}</h2> 
-                  <h3>Time: {remainingTime}</h3>
+                  <h3>Time: {newPatientRemainingTime}</h3>
                   <div className="mt-3 d-flex flex-column">
                       <Button variant="success" onClick={this.startTimer} className="mb-2">Start</Button>
                 <div className="duration-container">
@@ -472,7 +538,6 @@ class Main extends React.Component
                             {Array.from({ length: 24 }, (_, i) => (
                     <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} hours</option>
                   ))}
-    
                           </select>
                           <select
                             value={selectedMinute}
@@ -482,12 +547,12 @@ class Main extends React.Component
                             {Array.from({ length: 60 }, (_, i) => (
                     <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} minutes</option>
                   ))}
-    
                           </select>
                           <button onClick={this.handleSetTime} className="set-button">Set</button>
                         </div>
                       </div>
-                                  <Button variant="danger" onClick={this.stopTimer} className="mb-2">Completed</Button>
+                                  <Button variant="warning" onClick={this.stopTimer} className="mb-2">Pause</Button>
+                                  <Button variant="danger" onClick={this.Completed} className="mb-2">Completed</Button>
                                 </div>
                               </div>
               )}
