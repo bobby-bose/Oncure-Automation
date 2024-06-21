@@ -1,23 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Main from './second/main';
 import DashboardDetailCard from './screen/main/dashboarddetailcard';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import LoginPage from './login';
 
 
 const App = () => {
+  const [loggedIn, setLoggedIn] = useState(null);
+
+  useEffect(() => {
+    const loggedUser = localStorage.getItem('loggedIn');
+    if (loggedUser) {
+      setLoggedIn(loggedUser);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('loggedIn');
+    setLoggedIn(null);
+  };
+
   return (
-    <div className="App">
-      
-      <Router>
+    <Router>
       <Routes>
-      <Route path="/" element={<DashboardDetailCard />} />
-          <Route path="/second" element={<Main />} />
+        <Route
+          path="/"
+          element={loggedIn ? <Navigate to={`/${loggedIn}`} /> : <LoginPage setLoggedIn={setLoggedIn} />}
+        />
+        <Route
+          path="/admin"
+          element={loggedIn === 'admin' ? <Main onLogout={handleLogout} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/user"
+          element={loggedIn === 'user' ? <DashboardDetailCard onLogout={handleLogout} /> : <Navigate to="/" />}
+        />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
-  
-    </div>
   );
 };
 
 export default App;
+

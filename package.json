@@ -32,6 +32,7 @@
     "react-time-picker": "^7.0.0",
     "reactstrap": "^9.2.2",
     "redux": "^5.0.1",
+    "styled-components": "^6.1.11",
     "web-vitals": "^2.1.4",
     "yup": "^1.4.0"
   },

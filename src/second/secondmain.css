@@ -164,6 +164,19 @@ p{
   width: 100%;
 }
 
+.secondleftmainbuttonhandlelogout{
+  background: #15687C;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  margin-bottom: 40px;
+  width: 50%;
+}
+
+
 .search-bar input {
   padding: 8px;
   width: 100%;

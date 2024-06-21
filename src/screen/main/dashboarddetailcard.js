@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import './dashboarddetailcard.css';
+import { useNavigate } from 'react-router-dom';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -13,9 +14,15 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-export default function RowAndColumnSpacing() {
-  const [cardDetails, setCardDetails] = useState([]);
+const RowAndColumnSpacing = ({ onLogout }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    onLogout();
+    navigate('/');
+  };
   
+  const [cardDetails, setCardDetails] = useState([]);
   
   const fetchCardDetails = async () => {
     try {
@@ -24,44 +31,48 @@ export default function RowAndColumnSpacing() {
       console.log("First full Data", data.cardDetails);
       setCardDetails(data.cardDetails);
       
-      console.log("EACH SECOND",cardDetails);
+      console.log("EACH SECOND", cardDetails);
     } catch (error) {
       console.error('Error fetching card details:', error);
     }
   };
+
   useEffect(() => {
     fetchCardDetails();
-    const intervalId = setInterval(fetchCardDetails, 1000); 
+    const intervalId = setInterval(fetchCardDetails, 1000);
     return () => clearInterval(intervalId);
   }, []);
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-        {cardDetails.map((card, index) => (
-          <Grid item xs={6} key={index}>
-            <Item>
-              <div className={`card ${index % 2 === 0 ? 'left-card' : 'right-card'}`}>
-                {/* <h2>{card.id}</h2> */}
-                <h2>{card.patient_name}</h2>
-                <div className="button-container">
-                  <button>{card.buttonText}</button>
-                  <span className="time">
-                   {card.time}
-                  </span>
-                </div>
-                <h3>Upcoming</h3>
-                <button>{card.upcoming}</button>
-                {/* <ul>
-                  {card.remaining_departments.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul> */}
-              </div>
-            </Item>
+    <div className="main-body">
+      <div className="button-align">
+      <button className='top-button' onClick={handleLogout}>Logout</button>
+      </div>
+      <div className="content">
+        <Box sx={{ width: '100%' }}>
+          <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+            {cardDetails.map((card, index) => (
+              <Grid item xs={6} key={index}>
+                <Item>
+                  <div className={`card ${index % 2 === 0 ? 'left-card' : 'right-card'}`}>
+                    <h2>{card.patient_name}</h2>
+                    <div className="button-container">
+                      <button>{card.buttonText}</button>
+                      <span className="time">
+                        {card.time}
+                      </span>
+                    </div>
+                    <h3>Upcoming</h3>
+                    <button>{card.upcoming}</button>
+                  </div>
+                </Item>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
-    </Box>
+        </Box>
+      </div>
+    </div>
   );
-}
+};
+
+export default RowAndColumnSpacing;

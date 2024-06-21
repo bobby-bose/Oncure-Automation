@@ -4,11 +4,14 @@ import { ProgressBar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import { API_ENDPOINTS } from '../constants';
-import { Button, Form, Modal } from 'react-bootstrap';
 import axios from 'axios';
+import { Button, Form, Modal } from 'react-bootstrap';
 
-class Main extends React.Component
- {
+class Main extends React.Component {
+  handleLogout = () => {
+    localStorage.removeItem('loggedIn');
+    this.props.onLogout(); // Call the onLogout callback
+  };
        constructor(props) {
           super(props);
           this.state = {
@@ -49,7 +52,7 @@ class Main extends React.Component
       newPatientChosenPackage: null,
       newPatientAssignedDepartment: 0,
       newPatientChosenTime: 0,
-      newPatientRemainingTime: 1,
+      newPatientRemainingTime: 0,
       newPatientTimerActive: false,
             newdepartments:[],
             newassigneddepartment:null,
@@ -486,7 +489,7 @@ handleDeleteConfirmDelete=()=>{
                   <p>Address: {this.state.address || 'N/A'}</p>
                 </div>
               </div>
-             
+              <button className='secondleftmainbuttonhandlelogout' onClick={this.handleLogout}>Logout</button>
             </div>
             
           </div>
@@ -574,7 +577,7 @@ handleDeleteConfirmDelete=()=>{
                 <div className="duration-container">
                         <h2 className="timerh2">Select Time</h2>
                         <div className="dropdown-container">
-                          <select
+                          {/* <select
                             value={selectedHour}
                             onChange={this.handleHourChange}
                             className="dropdown"
@@ -582,7 +585,7 @@ handleDeleteConfirmDelete=()=>{
                             {Array.from({ length: 24 }, (_, i) => (
                     <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} hours</option>
                   ))}
-                          </select>
+                          </select> */}
                           <select
                             value={selectedMinute}
                             onChange={this.handleMinuteChange}
