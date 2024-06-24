@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Main from './second/main';
 import DashboardDetailCard from './screen/main/dashboarddetailcard';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import LoginPage from './login';
-
+import WaitingPatientsPage from './second/WaitingPatientsPage';
+import LoginPage from './login'; // Import your LoginPage component
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(null);
@@ -34,6 +34,10 @@ const App = () => {
         <Route
           path="/user"
           element={loggedIn === 'user' ? <DashboardDetailCard onLogout={handleLogout} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/waiting"
+          element={<WaitingPatientsPage  />}
         />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

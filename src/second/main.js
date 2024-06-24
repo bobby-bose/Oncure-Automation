@@ -7,6 +7,8 @@ import { API_ENDPOINTS } from '../constants';
 import axios from 'axios';
 import { Button, Form, Modal } from 'react-bootstrap';
 
+
+
 class Main extends React.Component {
   handleLogout = () => {
     localStorage.removeItem('loggedIn');
@@ -22,11 +24,10 @@ class Main extends React.Component {
             departments: [],
             selectedHour: 0,
             selectedMinute: 0,
-            
             showModal: false,
             patientName: 'John Doe',
             patientId: null,
-            secondpatientId: null,
+            secondpatientId:299,
             age: 30,
             gender: 'male',
             contactNumber: '1234567890',
@@ -54,15 +55,16 @@ class Main extends React.Component {
       newPatientChosenTime: 0,
       newPatientRemainingTime: 0,
       newPatientTimerActive: false,
+      newPatientProgressBar:100,
             newdepartments:[],
             newassigneddepartment:null,
             remainingtime:0,
             counterStatus:false,
             showDeleteModal: false,
+            showStart:true,
           };
           this.stopTimer = this.stopTimer.bind(this); 
           this.registernow = this.registernow.bind(this); 
-          this.handlePatientClick = this.handlePatientClick.bind(this); 
           this.handleDelete = this.handleDelete.bind(this); 
           this.handleMiddleSubmit = this.handleMiddleSubmit.bind(this); 
           this.handleMiddleChange = this.handleMiddleChange.bind(this); 
@@ -70,7 +72,6 @@ class Main extends React.Component {
           this.handleHourChange = this.handleHourChange.bind(this); 
           this.handleMinuteChange = this.handleMinuteChange.bind(this); 
           this.handlePackageChange = this.handlePackageChange.bind(this); 
-
         }
         fetchData = async () => {
             try {
@@ -80,7 +81,7 @@ class Main extends React.Component {
               const coordinationfacilitatorResponse = await fetch(API_ENDPOINTS.COORDINATIONFACILITATOR_LIST);
               const coordinationfacilitatorData = await coordinationfacilitatorResponse.json();
               this.setState({ CoordinationFacilitator: coordinationfacilitatorData.list }); // Ensure this matches the actual structure
-              console.log("COOOOOOOOOOOOOOOO",this.CoordinationFacilitator);
+              
             } catch (error) {
               console.error('Error fetching data:', error);
             }
@@ -94,35 +95,36 @@ class Main extends React.Component {
               console.error('Error fetching patients data:', error);
             }
           };
-          
-
+          waitingpatients = () => {
+            this.props.history.push('/waiting');
+          };
+        
   componentDidMount() {
     this.intervalId = setInterval(this.fetchPatients, 1000);
-    this.interval = setInterval(() => {
-      if (this.state.status) {
-        this.updateeachsecond();
-      }
-    }, 1000);
-   
-  }
+   this.intervalIdd=setInterval(this.updatetimer,1000);
+   this.intervalId_d=setInterval(this.fetchfullpatientdetails,500);
 
-  
+  }
   componentWillUnmount() {
     clearInterval(this.intervalId);
-    clearInterval(this.interval);
+    clearInterval(this.intervalIdd);
+    clearInterval(this.intervalId_d);
+    
   }
   changeColor = () => {
     this.setState({color: "blue"});
   }
   stopTimer = async () => {
-    this.setState({ status: false }); 
-    
+    console.log("Set to false");
+    this.setstatusfalse();
+    this.setState({ showStart: true }); 
   };
-   
   handleSetTime = () => {
-    const { selectedHour, selectedMinute } = this.state;
-    alert(`Time set to: ${selectedHour} hours and ${selectedMinute} minutes`);
-    this.updatemiddletimer();
+    
+    this.setState({ showStart: true }); 
+    alert("SET FUNCTION CALLED");
+    this.updatesettimer();
+    
   };
 
   handleMinuteChange = (event) => {
@@ -142,35 +144,31 @@ class Main extends React.Component {
       }
     }));
   };
-  updatemiddletimer = async () => {
-    try {
-      const { selectedHour, selectedMinute, secondpatientId } = this.state;
-      const newTime = `${selectedHour}:${selectedMinute}`;
-      console.log("EEEEEEEEEEEEAAAAAAAAAACH",selectedHour, selectedMinute, secondpatientId);
-      const response=await axios.post('http://127.0.0.1:8000/api/update_middle_timer/', { patId: secondpatientId, timer: newTime });
-      console.log("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",response.data.remaining_time);
-      this.setState({ remainingtime: response.data.remaining_time });
-    } catch (error) {
-      console.error("Error updating timer:", error);
-    }
-  };
+  
 
   toggleModal = () => {
     this.setState((prevState) => ({ showModal: !prevState.showModal }));
   };
-
-  handlePatientClick = (iddd) => {
-    console.log("0000000000000000000", iddd);
-    this.setState({ secondpatientId: iddd }, () => {
-        this.fetchfullpatientdetails();
-    });
-};
+updatesettimer=async()=>{
+  const {  newTime,selectedMinute } = this.state;
+  try {
+    const { secondpatientId } = this.state;
+    console.log("The second Patient gfgfgfgfgf Id is",secondpatientId);
+    console.log("The second Patient gfgfgfgfgf time is",selectedMinute);
+    if(secondpatientId){      
+    const response = await axios.post('http://127.0.0.1:8000/api/updatesettimer/', { patId: secondpatientId,time:selectedMinute });
+  }
+  } catch (error) {
+    console.error("Error fetching patient details:", error);
+  }
+}
+ 
   fetchfullpatientdetails = async () => {
     try {
       const { secondpatientId } = this.state;
-      console.log("4444444444444444",secondpatientId);
+      console.log("The second Patient Id is",secondpatientId);
+      if(secondpatientId){      
       const response = await axios.post('http://127.0.0.1:8000/api/patient/details/', { patId: secondpatientId });
-      console.log("1111111111111111111111", response.data.data);
       this.setState({
         newPatientName: response.data.name || '',
         newPatientAge: response.data.age || 0,
@@ -181,13 +179,13 @@ class Main extends React.Component {
         newPatientChosenPackage: response.data.data.chosen_package || 0,
         newPatientAssignedDepartment: response.data.assigned_department || 0,
         newPatientChosenTime: response.data.chosen_time || 0,
-        newPatientRemainingTime: response.data.data.remaining_time || 1,
-        newPatientTimerActive: response.data.timer_active || false,
+        newPatientRemainingTime: response.data.data.remaining_time || 0,
+        newPatientTimerActive: response.data.data.timer_active || false,
+        newPatientProgressBar: response.data.data.progress_bar || 100
       });
-      console.log("1111111111111111111111", response.data.departments);
       this.setState({ newdepartments: response.data.departments }); 
-      console.log("1111111111111111111111", response.data.assigned_dep);
       this.setState({ newassigneddepartment: response.data.assigned_dep }); 
+    }
     } catch (error) {
       console.error("Error fetching patient details:", error);
     }
@@ -198,7 +196,7 @@ class Main extends React.Component {
   handleSubmit = async (e) => {
     e.preventDefault();
     const { patientName, age, contactNumber, address, selectedPackage } = this.state;
-    console.log("AAAAAAAAADDDDDDDDDDDDDD",patientName,age,selectedPackage);
+    
     const patientData = {
       name: patientName,
       age: age,
@@ -242,7 +240,7 @@ class Main extends React.Component {
       }
       const data = await response.json();
       if (data.error) {
-        console.log("Error", data.error);
+        
       } else {
         console.log(data);
       }
@@ -272,32 +270,16 @@ class Main extends React.Component {
     }
   };
   startTimer = async () => {
-console.log("Started the updation of time");
-this.setState({ status: true });
+console.log("Set to true");
+this.setstatustrue();
+this.setState({ showStart: false }); 
   };
-  updateeachsecond = async () => {
-    try {
-      const { secondpatientId } = this.state;
-      console.log("111111111111111111111111111111111111",secondpatientId);
-      const response = await axios.post('http://127.0.0.1:8000/api/update_each_second/', { patId: secondpatientId });
-      console.log("000000000", response.data);
-      if (response.data.updated_time === 0) {
-        this.setState({ status: false });
-      }
-      this.setState({
-        newPatientRemainingTime: response.data.updated_time || 1,
-      });
-    } catch (error) {
-      console.error("Error updating patient remaining time", error);
-    }
-};
+
 
 Completed = async () => {
   try {
     const { secondpatientId, newPatientChosenPackage } = this.state;
-    console.log("7777777777", secondpatientId, newPatientChosenPackage);
     const response = await axios.post('http://127.0.0.1:8000/api/update_next_department/', { patId: secondpatientId, cho_pak: newPatientChosenPackage });
-    console.log("NEXT DEPARTMENT NEXTTT", response.data.next_department);
     if (response.data.next_department === "FINISHED") {
       alert("Patient visited All Departments");
       this.setState({
@@ -313,7 +295,7 @@ Completed = async () => {
   }
 };
 handlePackageChange = (e) => {
-  console.log("THE NEW PACKAGE NAME IS",e.target.value);
+ 
   this.setState({ selectedPackage: e.target.value });
 }
   registernow = async () => {
@@ -331,6 +313,37 @@ handleDeleteConfirmDelete=()=>{
   this.handleDelete(secondpatientId);
   this.setState({ showDeleteModal: false});
 }
+
+setstatustrue = async () => {
+  try {
+    const { secondpatientId } = this.state;
+   
+    const response = await axios.post('http://127.0.0.1:8000/api/start_timer/', { patId: secondpatientId });
+    
+  } catch (error) {
+    console.error("Error in setting the status true", error);
+  }
+};
+setstatusfalse = async () => {
+  try {
+    const { secondpatientId } = this.state;
+    
+    const response = await axios.post('http://127.0.0.1:8000/api/pause_timer/', { patId: secondpatientId });
+    
+  } catch (error) {
+    console.error("Error in setting the status false", error);
+  }
+};
+updatetimer = async () => {
+  try {
+              const response = await fetch('http://127.0.0.1:8000/api/update_timer/');
+                           
+            } catch (error) {
+              console.error('Error updating timer:', error);
+            }
+          };
+
+       
 
   render() {
     const {
@@ -365,9 +378,11 @@ handleDeleteConfirmDelete=()=>{
       newPatientChosenTime,
       newPatientRemainingTime,
       newPatientTimerActive,
+      newPatientProgressBar,
       newdepartments,
             newassigneddepartment,
-            showDeleteModal
+            showDeleteModal,
+          showStart 
     } = this.state;
    
     return (
@@ -489,7 +504,12 @@ handleDeleteConfirmDelete=()=>{
                   <p>Address: {this.state.address || 'N/A'}</p>
                 </div>
               </div>
-              <button className='secondleftmainbuttonhandlelogout' onClick={this.handleLogout}>Logout</button>
+              <div className='button-container'>
+    <button className='button-handle' onClick={this.handleLogout}>Logout</button>
+    <button className='button-handle' onClick={this.waitingpatients}>Waiting Patients</button>
+</div>
+              {/* <button className='secondleftmainbuttonhandlelogout' onClick={this.handleLogout}>Logout</button>
+              <button className='secondleftmainbuttonhandlelogout' onClick={this.waitingpatients}>Waiting Patients</button> */}
             </div>
             
           </div>
@@ -506,8 +526,8 @@ handleDeleteConfirmDelete=()=>{
                 <div style={{ width: '100%' }}>
           {data.map((patient, index) => (
             <div>
-            <div className="secondleftfirstboxitem" key={index} onClick={() => this.handlePatientClick(patient.id)}>
-              <div className="secondleftboxspan">
+            <div className="secondleftfirstboxitem" key={index} onClick={() => this.setState({ secondpatientId: patient.id })}>
+            <div className="secondleftboxspan">
                 <span className="secondleftboxspanname">Patient Name</span>
                 <span className="value">{patient.name}</span>
               </div>
@@ -569,11 +589,11 @@ handleDeleteConfirmDelete=()=>{
                 </div>
               ) : (
                 <div className="container text-center mt-5">
-               <ProgressBar now={progressBar}  />
+               <ProgressBar now={newPatientProgressBar}  />
                   <h2 className="mt-3">Current Department:{newassigneddepartment}</h2> 
                   <h3>Time: {newPatientRemainingTime}</h3>
                   <div className="mt-3 d-flex flex-column">
-                      <Button variant="success" onClick={this.startTimer} className="mb-2">Start</Button>
+                      
                 <div className="duration-container">
                         <h2 className="timerh2">Select Time</h2>
                         <div className="dropdown-container">
@@ -598,8 +618,16 @@ handleDeleteConfirmDelete=()=>{
                           <button onClick={this.handleSetTime} className="set-button">Set</button>
                         </div>
                       </div>
-                                  <Button variant="warning" onClick={this.stopTimer} className="mb-2">Pause</Button>
-                                  <Button variant="danger" onClick={this.Completed} className="mb-2">Completed</Button>
+                      {newPatientTimerActive ? (
+        <Button variant="warning" onClick={this.stopTimer} className="mb-2">
+        Pause
+      </Button>
+        ) : (
+          <Button variant="success" onClick={this.startTimer} className="mb-2">
+            Start
+          </Button>
+        )}
+                         <Button variant="danger" onClick={this.Completed} className="mb-2">Completed</Button>          
                                 </div>
                               </div>
               )}
@@ -624,4 +652,5 @@ handleDeleteConfirmDelete=()=>{
       );
     };
 };
+
 export default Main;
