@@ -60,8 +60,8 @@ const RowAndColumnSpacing = ({ onLogout }) => {
                     <button>{card.buttonText}</button>
                     <span className="time">{card.time}</span>
                   </div>
-                  {/* <h3>Upcoming</h3>
-                  <button>{card.upcoming}</button> */}
+                  <h3>Upcoming</h3>
+                  <button>{card.upcoming}</button>
                 </div>
               </Item>
             </Grid>

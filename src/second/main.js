@@ -179,7 +179,7 @@ updatesettimer=async()=>{
         newPatientChosenPackage: response.data.data.chosen_package || 0,
         newPatientAssignedDepartment: response.data.assigned_department || 0,
         newPatientChosenTime: response.data.chosen_time || 0,
-        newPatientRemainingTime: response.data.data.remaining_time || 0,
+        newPatientRemainingTime: response.data.remaining_time || 0,
         newPatientTimerActive: response.data.data.timer_active || false,
         newPatientProgressBar: response.data.data.progress_bar || 100
       });
