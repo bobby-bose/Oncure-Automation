@@ -5,6 +5,9 @@ import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import './dashboarddetailcard.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+import './Card.css'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -26,16 +29,17 @@ const RowAndColumnSpacing = ({ onLogout }) => {
   
   const fetchCardDetails = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/patient-card-details/');
-      const data = await response.json();
-      console.log("First full Data", data.cardDetails);
-      setCardDetails(data.cardDetails);
-      
-      console.log("EACH SECOND", cardDetails);
+        const response = await axios.get('http://127.0.0.1:8000/api/patient-card-details/');
+        console.log("THEEEEEEEEEEEEEEEEE",response)
+        const data = response.data;
+        console.log("First full Data", data.cardDetails);
+        setCardDetails(data.cardDetails);
+        console.log("EACH SECOND", data.cardDetails);
     } catch (error) {
-      console.error('Error fetching card details:', error);
+      console.log("ERRRRRRRRRRRRORRRR",error);
+        console.error('Error fetching card details:', error);
     }
-  };
+};
 
   useEffect(() => {
     fetchCardDetails();
@@ -55,13 +59,26 @@ const RowAndColumnSpacing = ({ onLogout }) => {
             <Grid item xs={12} sm={6} md={4} key={index}>
               <Item>
                 <div className={`card ${index % 2 === 0 ? 'left-card' : 'right-card'}`}>
-                  <h2>{card.patient_name}</h2>
+                  {/* <h2>{card.patient_name}</h2>
                   <div className="button-container">
                     <button>{card.buttonText}</button>
                     <span className="time">{card.time}</span>
                   </div>
                   <h3>Upcoming</h3>
-                  <button>{card.upcoming}</button>
+                  <button>{card.upcoming}</button> */}
+             <div class="row-one">
+   <button className="outlined-button-row-one">{card.patient_name}</button>
+   <button className="outlined-button-row-one">{card.total_time}</button>
+</div>
+<div class="row-two">
+   <button className="outlined-button-row-two">{card.buttonText1}</button>
+</div>
+<div class="row-two">
+   <button className="outlined-button-row-three">{card.buttonText2}</button>
+</div>
+<div class="row-two">
+   <button className="outlined-button-row-two">{card.buttonText3}</button>
+</div>
                 </div>
               </Item>
             </Grid>

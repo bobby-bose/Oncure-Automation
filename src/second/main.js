@@ -53,7 +53,8 @@ class Main extends React.Component {
       newPatientChosenPackage: null,
       newPatientAssignedDepartment: 0,
       newPatientChosenTime: 0,
-      newPatientRemainingTime: 0,
+      newPatientRemainingTime1: 0,
+      newPatientRemainingTime2: 0,
       newPatientTimerActive: false,
       newPatientProgressBar:100,
             newdepartments:[],
@@ -121,7 +122,6 @@ class Main extends React.Component {
     this.setState({ showStart: true }); 
   };
   handleSetTime = () => {
-    
     this.setState({ showStart: true }); 
     alert("SET FUNCTION CALLED");
     this.updatesettimer();
@@ -151,7 +151,7 @@ class Main extends React.Component {
     this.setState((prevState) => ({ showModal: !prevState.showModal }));
   };
 updatesettimer=async()=>{
-  const {  newTime,selectedMinute } = this.state;
+  const { selectedMinute } = this.state;
   try {
     const { secondpatientId } = this.state;
     console.log("The second Patient gfgfgfgfgf Id is",secondpatientId);
@@ -180,9 +180,10 @@ updatesettimer=async()=>{
         newPatientChosenPackage: response.data.data.chosen_package || 0,
         newPatientAssignedDepartment: response.data.assigned_department || 0,
         newPatientChosenTime: response.data.chosen_time || 0,
-        newPatientRemainingTime: response.data.remaining_time || 0,
+        newPatientRemainingTime1: response.data.remaining_time_minutes || 0,
+        newPatientRemainingTime2: response.data.remaining_time_seconds || 0,
         newPatientTimerActive: response.data.data.timer_active || false,
-        newPatientProgressBar: response.data.data.progress_bar || 100
+        newPatientProgressBar: response.data.progress_bar || 100
       });
       this.setState({ newdepartments: response.data.departments }); 
       this.setState({ newassigneddepartment: response.data.assigned_dep }); 
@@ -227,14 +228,40 @@ updatesettimer=async()=>{
     this.toggleModal();
   };
 
-  handleDelete = async (patientId) => {
+  // handleDelete = async (patientId) => {
+  //   try {
+  //     const response = await fetch('http://127.0.0.1:8000/api/patients/delete/', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ patientId }),
+  //     });
+  //     if (!response.ok) {
+  //       throw new Error('Network response was not ok');
+  //     }
+  //     const data = await response.json();
+  //     if (data.error) {
+        
+  //     } else {
+  //       console.log(data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // };
+  handleDelete = async () => {
+    const { secondpatientId } = this.state;
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/patients/delete/', {
+      const response = fetch('http://127.0.0.1:8000/api/patients/delete/', {
         method: 'POST',
+        body: JSON.stringify({
+          secondpatientId
+        }),
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ patientId }),
+
+          'Content-Type': 'application/json'
+        }
       });
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -249,6 +276,7 @@ updatesettimer=async()=>{
       console.error('Error:', error);
     }
   };
+ 
 
   handleMiddleSubmit = async (event) => {
     event.preventDefault();
@@ -324,14 +352,15 @@ handleDeleteConfirmDelete=()=>{
   this.setState({ showDeleteModal: false});
 }
 
+
 setstatustrue = async () => {
   try {
     const { secondpatientId } = this.state;
-   
+    
     const response = await axios.post('http://127.0.0.1:8000/api/start_timer/', { patId: secondpatientId });
     
   } catch (error) {
-    console.error("Error in setting the status true", error);
+    console.error("Error in setting the status false", error);
   }
 };
 setstatusfalse = async () => {
@@ -386,7 +415,8 @@ updatetimer = async () => {
       newPatientChosenPackage,
       newPatientAssignedDepartment,
       newPatientChosenTime,
-      newPatientRemainingTime,
+      newPatientRemainingTime1,
+      newPatientRemainingTime2,
       newPatientTimerActive,
       newPatientProgressBar,
       newdepartments,
@@ -614,7 +644,7 @@ updatetimer = async () => {
                 <div className="container text-center mt-5">
                <ProgressBar now={newPatientProgressBar}  />
                   <h2 className="mt-3">Current Department:{newassigneddepartment}</h2> 
-                  <h3>Time: {newPatientRemainingTime}</h3>
+                  <h3>Time: {newPatientRemainingTime1}:{newPatientRemainingTime2}</h3>
                   <div className="mt-3 d-flex flex-column">
                       
                 <div className="duration-container">
