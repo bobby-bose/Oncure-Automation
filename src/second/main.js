@@ -61,6 +61,7 @@ class Main extends React.Component {
             remainingtime:0,
             counterStatus:false,
             showDeleteModal: false,
+            showBusyModal:false,
             showStart:true,
           };
           this.stopTimer = this.stopTimer.bind(this); 
@@ -286,6 +287,12 @@ Completed = async () => {
         showDeleteModal: true
       });
     }
+    if (response.data.next_department === "WAITING") {
+      alert("Other Departments are Busy");
+      this.setState({
+        showBusyModal: true
+      });
+    }
     else{
       this.setState({ newassigneddepartment: response.data.next_department }); 
     }
@@ -307,6 +314,9 @@ handlePackageChange = (e) => {
 }
 handleDeleteCloseModal=()=>{
 this.setState({ showDeleteModal: false});
+}
+handleBusyCloseModal=()=>{
+this.setState({ showBusyModal: false});
 }
 handleDeleteConfirmDelete=()=>{
   const { secondpatientId } = this.state;
@@ -382,6 +392,7 @@ updatetimer = async () => {
       newdepartments,
             newassigneddepartment,
             showDeleteModal,
+            showBusyModal,
           showStart 
     } = this.state;
    
@@ -397,6 +408,18 @@ updatetimer = async () => {
                     <Modal.Footer>
                         <Button variant="secondary" onClick={this.handleDeleteCloseModal}>Cancel</Button>
                         <Button variant="primary" onClick={this.handleDeleteConfirmDelete}>OK</Button>
+                    </Modal.Footer>
+                </Modal>
+                <Modal show={showBusyModal} onHide={this.handleBusyCloseModal} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Busy Departments</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        The Remaining Departments are Busy...Please Wait?
+                    </Modal.Body>
+                    <Modal.Footer>
+                      
+                        <Button variant="primary" onClick={this.handleBusyCloseModal}>OK</Button>
                     </Modal.Footer>
                 </Modal>
         <Modal show={showModal} onHide={this.toggleModal} centered>
