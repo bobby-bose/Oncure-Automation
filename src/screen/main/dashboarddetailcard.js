@@ -43,8 +43,8 @@ const RowAndColumnSpacing = ({ onLogout }) => {
 
   useEffect(() => {
     fetchCardDetails();
-    const intervalId = setInterval(fetchCardDetails, 1000);
-    return () => clearInterval(intervalId);
+    // const intervalId = setInterval(fetchCardDetails, 1000);
+    // return () => clearInterval(intervalId);
   }, []);
 
   return (

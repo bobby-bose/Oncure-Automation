@@ -103,7 +103,7 @@ class Main extends React.Component {
         
   componentDidMount() {
     this.intervalId = setInterval(this.fetchPatients, 1000);
-   this.intervalIdd=setInterval(this.updatetimer,1000);
+  //  this.intervalIdd=setInterval(this.updatetimer,1000);
    this.intervalId_d=setInterval(this.fetchfullpatientdetails,500);
 
   }
