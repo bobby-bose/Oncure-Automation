@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/bobby-bose/Oncure-Automation.git/static/css/main.8f4d45e1.css",
+    "main.js": "/bobby-bose/Oncure-Automation.git/static/js/main.82cf67bd.js",
+    "static/js/453.d855a71b.chunk.js": "/bobby-bose/Oncure-Automation.git/static/js/453.d855a71b.chunk.js",
+    "index.html": "/bobby-bose/Oncure-Automation.git/index.html",
+    "main.8f4d45e1.css.map": "/bobby-bose/Oncure-Automation.git/static/css/main.8f4d45e1.css.map",
+    "main.82cf67bd.js.map": "/bobby-bose/Oncure-Automation.git/static/js/main.82cf67bd.js.map",
+    "453.d855a71b.chunk.js.map": "/bobby-bose/Oncure-Automation.git/static/js/453.d855a71b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8f4d45e1.css",
+    "static/js/main.82cf67bd.js"
+  ]
+}
