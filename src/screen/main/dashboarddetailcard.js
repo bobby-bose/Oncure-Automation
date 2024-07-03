@@ -6,8 +6,8 @@ import Box from '@mui/material/Box';
 import './dashboarddetailcard.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
 import './Card.css'
+import { API_ENDPOINTS } from '../../constants';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -29,7 +29,7 @@ const RowAndColumnSpacing = ({ onLogout }) => {
   
   const fetchCardDetails = async () => {
     try {
-        const response = await axios.get('http://127.0.0.1:8000/api/patient-card-details/');
+        const response = await axios.get(API_ENDPOINTS.FETCH_CARD_DETAILS);
         console.log("THEEEEEEEEEEEEEEEEE",response)
         const data = response.data;
         console.log("First full Data", data.cardDetails);

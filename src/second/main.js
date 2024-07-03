@@ -162,7 +162,7 @@ updatesettimer=async()=>{
     console.log("The second Patient gfgfgfgfgf Id is",secondpatientId);
     console.log("The second Patient gfgfgfgfgf time is",selectedMinute);
     if(secondpatientId){      
-    const response = await axios.post('http://127.0.0.1:8000/api/updatesettimer/', { patId: secondpatientId,time:selectedMinute });
+    const response = await axios.post(API_ENDPOINTS.UPDATE_SET_TIMER, { patId: secondpatientId,time:selectedMinute });
   }
   } catch (error) {
     console.error("Error fetching patient details:", error);
@@ -174,7 +174,7 @@ updatesettimer=async()=>{
       const { secondpatientId } = this.state;
       console.log("The second Patient Id is",secondpatientId);
       if(secondpatientId){      
-      const response = await axios.post('http://127.0.0.1:8000/api/patient/details/', { patId: secondpatientId });
+      const response = await axios.post(API_ENDPOINTS.PATIENT_DETAILS, { patId: secondpatientId });
       this.setState({
         newPatientName: response.data.data.name || '',
         newPatientAge: response.data.age || 0,
@@ -217,7 +217,7 @@ updatesettimer=async()=>{
       return;
     }
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/patients/add/', {
+      const response = await fetch(API_ENDPOINTS.PATIENT_ADD, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -238,7 +238,7 @@ updatesettimer=async()=>{
 
   handleDelete = async (patientId) => {
     try {
-      const response = fetch('http://127.0.0.1:8000/api/patients/delete/', {
+      const response = fetch(API_ENDPOINTS.PATIENT_DELETE, {
         method: 'POST',
         body: JSON.stringify({
           patientId
@@ -266,7 +266,7 @@ updatesettimer=async()=>{
     event.preventDefault();
     const { formData } = this.state;
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/patients/edit/', {
+      const response = await fetch(API_ENDPOINTS.PATIENT_EDIT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -293,7 +293,7 @@ console.log("REACHED 12");
 Completed = async () => {
   try {
     const { secondpatientId, newPatientChosenPackage } = this.state;
-    const response = await axios.post('http://127.0.0.1:8000/api/update_next_department/', { patId: secondpatientId, cho_pak: newPatientChosenPackage });
+    const response = await axios.post(API_ENDPOINTS.UPDATE_NEXT_DEPARTMENT, { patId: secondpatientId, cho_pak: newPatientChosenPackage });
     if (response.data.next_department === "FINISHED") {
       alert("Patient visited All Departments");
       this.setState({
@@ -344,7 +344,7 @@ setstatustrue = async () => {
   try {
     const { secondpatientId } = this.state;
     
-    const response = await axios.post('http://127.0.0.1:8000/api/start_timer/', { patId: secondpatientId });
+    const response = await axios.post(API_ENDPOINTS.START_TIMER, { patId: secondpatientId });
     console.log("SET STATUS TRUE");
     
   } catch (error) {
@@ -355,7 +355,7 @@ setstatusfalse = async () => {
   try {
     const { secondpatientId } = this.state;
     
-    const response = await axios.post('http://127.0.0.1:8000/api/pause_timer/', { patId: secondpatientId });
+    const response = await axios.post(API_ENDPOINTS.PAUSE_TIMER, { patId: secondpatientId });
     
   } catch (error) {
     console.error("Error in setting the status false", error);
@@ -363,7 +363,7 @@ setstatusfalse = async () => {
 };
 updatetimer = async () => {
   try {
-              const response = await fetch('http://127.0.0.1:8000/api/update_timer/');
+              const response = await fetch(API_ENDPOINTS.UPDATE_TIMER);
                            
             } catch (error) {
               console.error('Error updating timer:', error);
@@ -373,7 +373,7 @@ updatetimer = async () => {
           
           fulltimer = async () => {
             try {
-                        const response = await fetch('http://127.0.0.1:8000/api/fulltimer/');
+                        const response = await fetch(API_ENDPOINTS.FULL_TIMER);
                                      
                       } catch (error) {
                         console.error('Error updating timer:', error);
