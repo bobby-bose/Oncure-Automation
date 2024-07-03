@@ -1,6 +1,8 @@
 import './secondmain.css';
 import Avatar from './top/logo/logo';
-import { ProgressBar } from 'react-bootstrap';
+
+import ProgressBar from 'react-bootstrap/ProgressBar';
+        
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import { API_ENDPOINTS } from '../constants';
@@ -8,11 +10,10 @@ import axios from 'axios';
 import { Button, Form, Modal } from 'react-bootstrap';
 
 
-
 class Main extends React.Component {
   handleLogout = () => {
     localStorage.removeItem('loggedIn');
-    this.props.onLogout(); // Call the onLogout callback
+    this.props.onLogout(); 
   };
        constructor(props) {
           super(props);
@@ -20,18 +21,19 @@ class Main extends React.Component {
             regid: 'MO1',
             data: [],
             CoordinationFacilitator: [],
+            Meals: [],
             progressBar: 100,
             departments: [],
             selectedHour: 0,
             selectedMinute: 0,
             showModal: false,
-            patientName: 'John Doe',
+            patientName: '',
             patientId: null,
             secondpatientId:299,
-            age: 30,
-            gender: 'male',
-            contactNumber: '1234567890',
-            address: '123 Main St',
+            age: 0,
+            gender: 'default',
+            contactNumber: '',
+            address: '',
             leftform: false,
             currentDepartment: '',
             selectedPackage: '',
@@ -80,10 +82,12 @@ class Main extends React.Component {
               const packagesResponse = await fetch(API_ENDPOINTS.PACKAGES_LIST);
               const packagesData = await packagesResponse.json();
               this.setState({ OncurePackages: packagesData.list }); // Ensure this matches the actual structure
+              const mealsResponse = await fetch(API_ENDPOINTS.MEALS_LIST);
+              const mealsData = await mealsResponse.json();
+              this.setState({ Meals: mealsData.list }); 
               const coordinationfacilitatorResponse = await fetch(API_ENDPOINTS.COORDINATIONFACILITATOR_LIST);
               const coordinationfacilitatorData = await coordinationfacilitatorResponse.json();
               this.setState({ CoordinationFacilitator: coordinationfacilitatorData.list }); // Ensure this matches the actual structure
-              
             } catch (error) {
               console.error('Error fetching data:', error);
             }
@@ -103,15 +107,16 @@ class Main extends React.Component {
         
   componentDidMount() {
     this.intervalId = setInterval(this.fetchPatients, 1000);
-  //  this.intervalIdd=setInterval(this.updatetimer,1000);
+   this.intervalIdd=setInterval(this.updatetimer,1000);
    this.intervalId_d=setInterval(this.fetchfullpatientdetails,500);
+   this.intervalId_dd=setInterval(this.fulltimer,500);
 
   }
   componentWillUnmount() {
     clearInterval(this.intervalId);
     clearInterval(this.intervalIdd);
     clearInterval(this.intervalId_d);
-    
+    clearInterval(this.intervalId_dd);
   }
   changeColor = () => {
     this.setState({color: "blue"});
@@ -171,7 +176,7 @@ updatesettimer=async()=>{
       if(secondpatientId){      
       const response = await axios.post('http://127.0.0.1:8000/api/patient/details/', { patId: secondpatientId });
       this.setState({
-        newPatientName: response.data.name || '',
+        newPatientName: response.data.data.name || '',
         newPatientAge: response.data.age || 0,
         newPatientMobileNumber: response.data.mobile_number || '',
         newPatientAddress: response.data.address || '',
@@ -183,7 +188,7 @@ updatesettimer=async()=>{
         newPatientRemainingTime1: response.data.remaining_time_minutes || 0,
         newPatientRemainingTime2: response.data.remaining_time_seconds || 0,
         newPatientTimerActive: response.data.data.timer_active || false,
-        newPatientProgressBar: response.data.progress_bar || 100
+        newPatientProgressBar: response.data.progress_bar || 40
       });
       this.setState({ newdepartments: response.data.departments }); 
       this.setState({ newassigneddepartment: response.data.assigned_dep }); 
@@ -198,17 +203,19 @@ updatesettimer=async()=>{
   handleSubmit = async (e) => {
     e.preventDefault();
     const { patientName, age, contactNumber, address, selectedPackage } = this.state;
-    
     const patientData = {
       name: patientName,
       age: age,
       contact_number: contactNumber,
       address: address,
       chosen_package: selectedPackage,
-      assigned_department: null,
-      status: "",
-      current_department: ""
     };
+    const isEmpty = (value) => value === null || value === 0 || value === '';
+    const hasInvalidValue = Object.values(patientData).some(isEmpty);
+    if (hasInvalidValue) {
+      alert('Please submit full data');
+      return;
+    }
     try {
       const response = await fetch('http://127.0.0.1:8000/api/patients/add/', {
         method: 'POST',
@@ -228,38 +235,15 @@ updatesettimer=async()=>{
     this.toggleModal();
   };
 
-  // handleDelete = async (patientId) => {
-  //   try {
-  //     const response = await fetch('http://127.0.0.1:8000/api/patients/delete/', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ patientId }),
-  //     });
-  //     if (!response.ok) {
-  //       throw new Error('Network response was not ok');
-  //     }
-  //     const data = await response.json();
-  //     if (data.error) {
-        
-  //     } else {
-  //       console.log(data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error:', error);
-  //   }
-  // };
-  handleDelete = async () => {
-    const { secondpatientId } = this.state;
+
+  handleDelete = async (patientId) => {
     try {
       const response = fetch('http://127.0.0.1:8000/api/patients/delete/', {
         method: 'POST',
         body: JSON.stringify({
-          secondpatientId
+          patientId
         }),
         headers: {
-
           'Content-Type': 'application/json'
         }
       });
@@ -268,7 +252,6 @@ updatesettimer=async()=>{
       }
       const data = await response.json();
       if (data.error) {
-        
       } else {
         console.log(data);
       }
@@ -279,6 +262,7 @@ updatesettimer=async()=>{
  
 
   handleMiddleSubmit = async (event) => {
+    this.showleftform(false);
     event.preventDefault();
     const { formData } = this.state;
     try {
@@ -302,6 +286,7 @@ updatesettimer=async()=>{
 console.log("Set to true");
 this.setstatustrue();
 this.setState({ showStart: false }); 
+console.log("REACHED 12");
   };
 
 
@@ -351,13 +336,16 @@ handleDeleteConfirmDelete=()=>{
   this.handleDelete(secondpatientId);
   this.setState({ showDeleteModal: false});
 }
-
+showleftform=(val)=>{
+  this.setState({ leftform: val});
+}
 
 setstatustrue = async () => {
   try {
     const { secondpatientId } = this.state;
     
     const response = await axios.post('http://127.0.0.1:8000/api/start_timer/', { patId: secondpatientId });
+    console.log("SET STATUS TRUE");
     
   } catch (error) {
     console.error("Error in setting the status false", error);
@@ -382,11 +370,20 @@ updatetimer = async () => {
             }
           };
 
-       
+          
+          fulltimer = async () => {
+            try {
+                        const response = await fetch('http://127.0.0.1:8000/api/fulltimer/');
+                                     
+                      } catch (error) {
+                        console.error('Error updating timer:', error);
+                      }
+                    };
 
   render() {
     const {
       data,
+      Meals,
       CoordinationFacilitator,
       progressBar,
       departments,
@@ -425,7 +422,7 @@ updatetimer = async () => {
             showBusyModal,
           showStart 
     } = this.state;
-   
+    
     return (
         <div className="secondmaincontainer">
             <Modal show={showDeleteModal} onHide={this.handleDeleteCloseModal} centered>
@@ -464,10 +461,9 @@ updatetimer = async () => {
                   type="text"
                   value={patientName}
                   onChange={(e) => this.setState({ patientName: e.target.value })}
-                  defaultValue="John Doe" // Default value
+                  defaultValue="John Doe" // Default value1zatient Form
                 />
               </Form.Group>
-
               <Form.Group controlId="age">
                 <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Age</Form.Label>
                 <Form.Control
@@ -484,12 +480,12 @@ updatetimer = async () => {
                   value={gender}
                   onChange={(e) => this.setState({ gender: e.target.value })}
                 >
+                  <option value="default">Select a Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </Form.Control>
               </Form.Group>
-
               <Form.Group controlId="contactNumber">
                 <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Contact Number</Form.Label>
                 <Form.Control
@@ -498,7 +494,6 @@ updatetimer = async () => {
                   onChange={(e) => this.setState({ contactNumber: e.target.value })}
                 />
               </Form.Group>
-
               <Form.Group controlId="address">
                 <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Address</Form.Label>
                 <Form.Control
@@ -517,6 +512,20 @@ updatetimer = async () => {
                   {CoordinationFacilitator.map((facilitator) => (
                     <option key={facilitator.id} value={facilitator.id}>
                       {facilitator.name}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group controlId="selectedmealsformid">
+                <Form.Label style={{ fontWeight: 'bold', fontFamily: 'Roboto' }}>Meals</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={this.selectedMeals}
+                  onChange={(e) => this.setState({ selectedMeals: e.target.value })}
+                >
+                  {Meals.map((meals) => (
+                    <option key={meals.id} value={meals.id}>
+                      {meals.name}
                     </option>
                   ))}
                 </Form.Control>
@@ -544,32 +553,20 @@ updatetimer = async () => {
             </Form>
           </Modal.Body>
         </Modal>
-          <div className="top-section">
-            <div className="button-row">
-              <Avatar src="https://owas.oncurehealth.com/logo.svg" alt="Avatar" />
-              <div className="textdetailscontainer">
-                <div className="text-details">
-                  <p>Patient Name: {this.state.patientName || 'N/A'}</p>
-                  <p>Registration ID: {this.state.regid || 'N/A'}</p>
-                  <p>Age: {this.state.age || 'N/A'}</p>
-                  <p>Gender: {this.state.gender || 'N/A'}</p>
-                  <p>Contact Number: {this.state.contactNumber || 'N/A'}</p>
-                  <p>Address: {this.state.address || 'N/A'}</p>
-                </div>
-              </div>
-              <div className='button-container'>
-    <button className='button-handle' onClick={this.handleLogout}>Logout</button>
-    <button className='button-handle' onClick={this.waitingpatients}>Waiting Patients</button>
+        <div className="top-section">
+  <div className="button-row" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ marginBottom: '10px',marginTop: '40px' }}>
+      <Avatar src="https://owas.oncurehealth.com/logo.svg" alt="Avatar" />
+    </div>
+    <div className='button-container'>
+      <button className='button-handle' onClick={this.handleLogout}>Logout</button>
+    </div>
+  </div>
 </div>
-              {/* <button className='secondleftmainbuttonhandlelogout' onClick={this.handleLogout}>Logout</button>
-              <button className='secondleftmainbuttonhandlelogout' onClick={this.waitingpatients}>Waiting Patients</button> */}
-            </div>
-            
-          </div>
+
           <div className="bottom-section">
             <div className="bottom-div-one">
               <div className="secondleftmaincontainer">
-            
                 <button className='secondleftmainbutton'onClick={this.registernow}> 
                   Register Now
                 </button>
@@ -623,10 +620,6 @@ updatetimer = async () => {
                         <input type="text" className="form-control" id="name" value={formData.name} onChange={this.handleMiddleChange}/>
                       </div>
                       <div className="mb-3">
-                        <label htmlFor="regId" className="form-label">Registration Id</label>
-                        <input type="text" className="form-control" id="regId" value={formData.regId} onChange={this.handleMiddleChange}/>
-                      </div>
-                      <div className="mb-3">
                         <label htmlFor="contactNumber" className="form-label">Contact Number</label>
                         <input type="text" className="form-control" id="contactNumber" value={formData.contactNumber} onChange={this.handleMiddleChange}/>
                       </div>
@@ -634,31 +627,22 @@ updatetimer = async () => {
                         <label htmlFor="address" className="form-label">Address</label>
                         <input type="text" className="form-control" id="address" value={formData.address} onChange={this.handleMiddleChange}/>
                       </div>
-                      <button type="submit" style={{ backgroundColor: 'green', color: 'white' }}>
-            Submit
-          </button>
+                      <button type="submit" className="btn btn-success flex-grow-1 me-1">Submit</button>
                     </form>
                   </div>
                 </div>
               ) : (
-                <div className="container text-center mt-5">
-               <ProgressBar now={newPatientProgressBar}  />
-                  <h2 className="mt-3">Current Department:{newassigneddepartment}</h2> 
-                  <h3>Time: {newPatientRemainingTime1}:{newPatientRemainingTime2}</h3>
+                <div className="container text-center mt-2">
+               
+              
+               {/* <ProgressBar now={newPatientProgressBar} /> */}
+               <h2 className="mt-3">{newPatientName}</h2> 
+                  <h2 className="mt-3">{newassigneddepartment}</h2> 
+                  <h3>{newPatientRemainingTime1}:{newPatientRemainingTime2}</h3>
                   <div className="mt-3 d-flex flex-column">
-                      
                 <div className="duration-container">
                         <h2 className="timerh2">Select Time</h2>
                         <div className="dropdown-container">
-                          {/* <select
-                            value={selectedHour}
-                            onChange={this.handleHourChange}
-                            className="dropdown"
-                          >
-                            {Array.from({ length: 24 }, (_, i) => (
-                    <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')} hours</option>
-                  ))}
-                          </select> */}
                           <select
                             value={selectedMinute}
                             onChange={this.handleMinuteChange}

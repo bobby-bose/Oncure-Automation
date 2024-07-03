@@ -43,8 +43,8 @@ const RowAndColumnSpacing = ({ onLogout }) => {
 
   useEffect(() => {
     fetchCardDetails();
-    // const intervalId = setInterval(fetchCardDetails, 1000);
-    // return () => clearInterval(intervalId);
+    const intervalId = setInterval(fetchCardDetails, 1000);
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -59,16 +59,12 @@ const RowAndColumnSpacing = ({ onLogout }) => {
             <Grid item xs={12} sm={6} md={4} key={index}>
               <Item>
                 <div className={`card ${index % 2 === 0 ? 'left-card' : 'right-card'}`}>
-                  {/* <h2>{card.patient_name}</h2>
-                  <div className="button-container">
-                    <button>{card.buttonText}</button>
-                    <span className="time">{card.time}</span>
-                  </div>
-                  <h3>Upcoming</h3>
-                  <button>{card.upcoming}</button> */}
              <div class="row-one">
-   <button className="outlined-button-row-one">{card.patient_name}</button>
-   <button className="outlined-button-row-one">{card.total_time}</button>
+   
+   <button className="outlined-button">
+  <span className="button-content">{card.patient_name}</span>
+  <span className="button-content">{card.total_time}</span>
+</button>
 </div>
 <div class="row-two">
    <button className="outlined-button-row-two">{card.buttonText1}</button>
